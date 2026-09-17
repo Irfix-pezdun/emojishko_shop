@@ -1,0 +1,2 @@
+# SPA fallback для Cloudflare Pages — все пути отдают index.html
+/*    /index.html   200

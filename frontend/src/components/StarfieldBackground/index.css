@@ -1,0 +1,62 @@
+.starfield {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.starfield__parallax {
+  position: absolute;
+  will-change: transform;
+}
+
+.starfield__drift {
+  animation-name: starfield-drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+.starfield__twinkle {
+  animation-name: starfield-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 0 10px rgba(255, 180, 140, 0.35)) drop-shadow(0 0 22px rgba(138, 168, 255, 0.18));
+}
+
+.starfield__emoji {
+  width: 100%;
+  height: 100%;
+}
+
+/* Лёгкие «далёкие» звёзды без Lottie — только CSS */
+.starfield__dot {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.95) 0%, rgba(180, 200, 255, 0.5) 40%, transparent 70%);
+  animation-name: starfield-twinkle;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+  filter: drop-shadow(0 0 4px rgba(160, 180, 255, 0.4));
+}
+
+@keyframes starfield-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(var(--drift-x), var(--drift-y), 0);
+  }
+}
+
+@keyframes starfield-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.92);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

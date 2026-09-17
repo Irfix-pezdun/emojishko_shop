@@ -1,0 +1,36 @@
+import enum
+from datetime import datetime, timezone
+
+from sqlalchemy import Column, Integer, String, DateTime, Enum, JSON
+
+from .db import Base
+
+
+class LeadType(str, enum.Enum):
+    free_trial = "free_trial"
+    full_order = "full_order"
+
+
+class LeadStatus(str, enum.Enum):
+    claimed = "claimed"          # free_trial: заявка принята, ждёт работы автора
+    new = "new"                  # новая заявка на платный пак
+    contacted = "contacted"
+    in_progress = "in_progress"
+    completed = "completed"
+    cancelled = "cancelled"
+
+
+class Lead(Base):
+    __tablename__ = "leads"
+
+    id = Column(Integer, primary_key=True, index=True)
+    telegram_user_id = Column(String, index=True, nullable=False)
+    telegram_username = Column(String, nullable=True)
+    type = Column(Enum(LeadType), nullable=False)
+    status = Column(Enum(LeadStatus), nullable=False)
+    # Уникальный код заявки (IRF-XXXX) — удобно искать глазами в уведомлениях
+    code = Column(String, unique=True, index=True, nullable=True)
+    # free_trial: {description, reference_emoji, reference_pack}
+    # full_order: поля формы заказа
+    payload = Column(JSON, nullable=True)
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

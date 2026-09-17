@@ -1,0 +1,33 @@
+.order-form {
+  padding-bottom: 100px; /* место под нативный MainButton снизу */
+}
+
+.order-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.order-form__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.order-form__chip {
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  color: var(--text);
+  font-size: 13px;
+}
+
+.order-form__chip--active {
+  background: linear-gradient(135deg, var(--accent-cool-1), var(--accent-cool-2));
+  color: #10102a;
+  border-color: transparent;
+  font-weight: 600;
+}

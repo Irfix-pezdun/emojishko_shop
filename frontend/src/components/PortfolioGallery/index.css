@@ -1,0 +1,85 @@
+.pack-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.pack-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 14px 10px 16px;
+  text-align: center;
+}
+
+.pack-card__cover {
+  width: 64px;
+  height: 64px;
+}
+
+.pack-card__title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pack-card__count {
+  font-size: 12px;
+}
+
+.pack-viewer {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pack-viewer__back {
+  align-self: flex-start;
+  padding: 6px 0;
+}
+
+.pack-viewer__stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 260px;
+}
+
+.pack-viewer__slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pack-viewer__emoji {
+  width: 220px;
+  height: 220px;
+}
+
+.pack-viewer__nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--surface);
+  border: 1px solid var(--surface-border);
+  color: var(--text);
+  font-size: 20px;
+  z-index: 1;
+}
+
+.pack-viewer__nav--prev {
+  left: 0;
+}
+
+.pack-viewer__nav--next {
+  right: 0;
+}
+
+.pack-viewer__counter {
+  text-align: center;
+}
