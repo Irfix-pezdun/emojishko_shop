@@ -26,6 +26,9 @@ class CatalogOut(BaseModel):
 
 class FreeEmojiClaimIn(BaseModel):
     description: str = Field(..., min_length=3, max_length=500)
+    nick: Optional[str] = Field(None, max_length=64)
+    logo: Optional[str] = Field(None, max_length=500)  # ссылка на SVG/PNG или «в личку»
+    colors: Optional[str] = Field(None, max_length=200)  # «синий и белый» / #hex
     reference_emoji: Optional[str] = Field(None, max_length=64)
     reference_pack: Optional[str] = Field(None, max_length=64)
 
@@ -43,6 +46,9 @@ class OrderCreateIn(BaseModel):
     theme: str = Field(..., min_length=1, max_length=500)
     emoji_count: int = Field(..., ge=1, le=100)
     styles: list[str] = []
+    nick: Optional[str] = Field(None, max_length=64)
+    logo: Optional[str] = Field(None, max_length=500)
+    colors: Optional[str] = Field(None, max_length=200)
     references: Optional[str] = Field(None, max_length=1000)
     contact: Optional[str] = Field(None, max_length=200)
     comment: Optional[str] = Field(None, max_length=1000)

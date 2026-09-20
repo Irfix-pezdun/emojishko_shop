@@ -45,7 +45,10 @@ export default function App() {
 
   return (
     <>
-      <StarfieldBackground emojiUrls={backgroundEmojiUrls} density={screen === "home" ? 1 : 0.5} />
+      {/* На главной — макет IRFIX без «звёзд»; TGS-фон на остальных экранах */}
+      {screen !== "home" && (
+        <StarfieldBackground emojiUrls={backgroundEmojiUrls} density={0.5} />
+      )}
 
       {screen === "home" && <HomeMenu onNavigate={push} />}
 

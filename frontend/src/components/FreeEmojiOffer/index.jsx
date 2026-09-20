@@ -19,11 +19,13 @@ function RefThumb({ url, selected, onClick }) {
 
 export default function FreeEmojiOffer({ channelUsername, authorUsername, packs = [], onOrder }) {
   const [state, setState] = useState("loading");
-  // loading | form | already_claimed | claimed | subscribe_required
   const [checking, setChecking] = useState(false);
   const [error, setError] = useState(null);
   const [description, setDescription] = useState("");
-  const [refEmoji, setRefEmoji] = useState(null); // { packId, emojiId, url }
+  const [nick, setNick] = useState("");
+  const [logo, setLogo] = useState("");
+  const [colors, setColors] = useState("");
+  const [refEmoji, setRefEmoji] = useState(null);
   const [code, setCode] = useState(null);
 
   const examples = useMemo(() => {
@@ -56,11 +58,18 @@ export default function FreeEmojiOffer({ channelUsername, authorUsername, packs 
       setError("Опиши эмодзи хотя бы в паре слов (минимум 3 символа).");
       return;
     }
+    if (!nick.trim()) {
+      setError("Укажи ник или имя, которое должно быть на эмодзи.");
+      return;
+    }
     setChecking(true);
     setError(null);
     try {
       const res = await claimFreeEmoji({
         description: text,
+        nick: nick.trim(),
+        logo: logo.trim() || null,
+        colors: colors.trim() || null,
         reference_emoji: refEmoji?.emojiId || null,
         reference_pack: refEmoji?.packId || null,
       });
@@ -96,7 +105,10 @@ export default function FreeEmojiOffer({ channelUsername, authorUsername, packs 
         <h2>🎁 Бесплатный эмодзи</h2>
         <div className="card free-emoji__card">
           {isNew ? (
-            <p>Заявка принята! Я нарисую эмодзи вручную и пришлю в личку.</p>
+            <p>
+              Заявка принята! Я нарисую эмодзи вручную и пришлю в личку.
+              Если есть SVG-логотип — пришли его в чат с кодом заявки.
+            </p>
           ) : (
             <p>Вы уже оставляли заявку на бесплатный эмодзи 🙂</p>
           )}
@@ -130,16 +142,46 @@ export default function FreeEmojiOffer({ channelUsername, authorUsername, packs 
 
       <ol className="free-emoji__steps">
         <li>Подпишись на канал</li>
-        <li>Опиши, какой эмодзи хочешь (и при желании выбери похожий из примеров)</li>
-        <li>Отправь заявку — я получу код и сделаю вручную</li>
+        <li>Заполни ник, цвета и идею</li>
+        <li>Пришли SVG/лого в личку (если есть) — с кодом заявки</li>
       </ol>
 
-      <label className="free-emoji__label">Что нарисовать? *</label>
+      <label className="free-emoji__label">Ник / имя на эмодзи *</label>
+      <input
+        className="free-emoji__input"
+        type="text"
+        maxLength={64}
+        placeholder="Например: IRFIX или ваш @ник"
+        value={nick}
+        onChange={(e) => setNick(e.target.value)}
+      />
+
+      <label className="free-emoji__label">Цвета</label>
+      <input
+        className="free-emoji__input"
+        type="text"
+        maxLength={200}
+        placeholder="Синий и белый, или #00A3FF #FFFFFF"
+        value={colors}
+        onChange={(e) => setColors(e.target.value)}
+      />
+
+      <label className="free-emoji__label">Логотип (ссылка или «в личку»)</label>
+      <input
+        className="free-emoji__input"
+        type="text"
+        maxLength={500}
+        placeholder="Ссылка на SVG/PNG или напиши: пришлю в личку"
+        value={logo}
+        onChange={(e) => setLogo(e.target.value)}
+      />
+
+      <label className="free-emoji__label">Описание идеи *</label>
       <textarea
         className="free-emoji__textarea"
         rows={3}
         maxLength={500}
-        placeholder="Например: котёнок машет лапкой, в стиле мемов"
+        placeholder="Что должно происходить в анимации, настроение, детали…"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
       />

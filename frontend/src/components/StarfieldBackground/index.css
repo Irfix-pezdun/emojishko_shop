@@ -9,6 +9,7 @@
 .starfield__parallax {
   position: absolute;
   will-change: transform;
+  /* центр эмодзи в точке left/top — иначе на мобилке кучкуются */
 }
 
 .starfield__drift {

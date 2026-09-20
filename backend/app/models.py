@@ -30,7 +30,7 @@ class Lead(Base):
     status = Column(Enum(LeadStatus), nullable=False)
     # Уникальный код заявки (IRF-XXXX) — удобно искать глазами в уведомлениях
     code = Column(String, unique=True, index=True, nullable=True)
-    # free_trial: {description, reference_emoji, reference_pack}
+    # free_trial: {description, nick, logo, colors, reference_emoji, reference_pack}
     # full_order: поля формы заказа
     payload = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

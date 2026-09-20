@@ -75,3 +75,19 @@
   font-size: 18px;
   letter-spacing: 0.04em;
 }
+
+.free-emoji__input {
+  width: 100%;
+  box-sizing: border-box;
+  margin: 6px 0 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  font: inherit;
+}
+
+.free-emoji__input::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+}

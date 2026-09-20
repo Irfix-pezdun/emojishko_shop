@@ -2,41 +2,59 @@
   position: relative;
   z-index: 1;
   flex: 1;
+  width: 100%;
+  min-height: 100%;
+  background: #020b2e;
+}
+
+.home__art {
+  position: absolute;
+  inset: 0;
+  background: url("/home-bg.jpg") center top / cover no-repeat;
+  background-color: #020b2e;
+}
+
+.home__hits {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(92%, 420px);
+  top: 28%;
+  bottom: 8%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  gap: 40px;
-  padding-top: 60px;
+  gap: 2.2%;
+  z-index: 2;
 }
 
-.home__hero {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-  margin-top: auto;
+.home__hit {
+  flex: 1;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: none;
+  border-radius: 22px;
+  background: transparent;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
 }
 
-.home__logo {
-  font-size: 34px;
-  background: linear-gradient(135deg, var(--accent-cool-1), var(--accent-hot-1));
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 0 18px rgba(138, 168, 255, 0.4));
+.home__hit:active {
+  background: rgba(255, 255, 255, 0.06);
 }
 
-.home__title {
-  font-size: 28px;
+.home__hit--free {
+  flex: 1.55;
 }
 
-.home__tagline {
-  color: var(--text-muted);
-  font-size: 15px;
+.home__hit--portfolio,
+.home__hit--about {
+  flex: 1;
 }
 
-.home__cta {
-  font-size: 17px;
-  padding: 18px;
+@media (max-height: 700px) {
+  .home__hits {
+    top: 30%;
+    bottom: 6%;
+  }
 }

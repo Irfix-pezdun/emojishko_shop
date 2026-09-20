@@ -27,13 +27,24 @@ export function getThemeParams() {
 }
 
 export function openChat(username) {
-  if (!username) return;
-  const clean = username.replace(/^@/, "");
-  if (tg?.openTelegramLink) {
-    tg.openTelegramLink(`https://t.me/${clean}`);
-  } else {
-    window.open(`https://t.me/${clean}`, "_blank");
+  // fallback, если с API не пришёл AUTHOR_USERNAME
+  const raw = (username || "IRFIX_Factor").trim();
+  if (!raw) return;
+  const clean = raw.replace(/^@/, "");
+  const url = `https://t.me/${clean}`;
+  try {
+    if (tg?.openTelegramLink) {
+      tg.openTelegramLink(url);
+      return;
+    }
+    if (tg?.openLink) {
+      tg.openLink(url);
+      return;
+    }
+  } catch (_) {
+    /* fallback below */
   }
+  window.open(url, "_blank");
 }
 
 export function haptic(kind = "light") {

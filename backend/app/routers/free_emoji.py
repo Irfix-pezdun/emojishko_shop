@@ -80,8 +80,14 @@ async def claim_free_emoji(
         return FreeEmojiClaimOut(status="subscribe_required")
 
     code = _unique_code(db)
+    nick = (body.nick or "").strip() or None
+    logo = (body.logo or "").strip() or None
+    colors = (body.colors or "").strip() or None
     payload = {
         "description": body.description.strip(),
+        "nick": nick,
+        "logo": logo,
+        "colors": colors,
         "reference_emoji": body.reference_emoji,
         "reference_pack": body.reference_pack,
     }
@@ -98,10 +104,16 @@ async def claim_free_emoji(
     db.commit()
 
     who = f"@{user.username}" if user.username else f"id {user.id}"
-    ref_line = ""
+    extra = ""
+    if nick:
+        extra += f"\nНик: {nick}"
+    if logo:
+        extra += f"\nЛого: {logo}"
+    if colors:
+        extra += f"\nЦвета: {colors}"
     if body.reference_emoji:
         pack = body.reference_pack or "—"
-        ref_line = f"\nРеференс: <code>{pack}/{body.reference_emoji}</code>"
+        extra += f"\nРеференс: <code>{pack}/{body.reference_emoji}</code>"
 
     text = (
         f"🎁 <b>Бесплатный эмодзи</b>\n"
@@ -109,7 +121,7 @@ async def claim_free_emoji(
         f"Кто: {who}\n"
         f"ID: <code>{user.id}</code>\n"
         f"Описание: {body.description.strip()}"
-        f"{ref_line}"
+        f"{extra}"
     )
     try:
         await notify_author(text)

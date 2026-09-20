@@ -1,8 +1,8 @@
 :root {
   /* --- Палитра --- */
-  --bg-deep: #05050b;
-  --bg-mid: #0b0b1e;
-  --bg-nebula: #1a1035;
+  --bg-deep: #020b2e;
+  --bg-mid: #04124a;
+  --bg-nebula: #0a1f6e;
   --surface: rgba(255, 255, 255, 0.05);
   --surface-border: rgba(255, 255, 255, 0.09);
   --text: #f3f1fb;
@@ -39,7 +39,13 @@ body,
 body {
   margin: 0;
   font-family: var(--font-body);
-  background: radial-gradient(ellipse at 50% -10%, var(--bg-nebula) 0%, var(--bg-mid) 45%, var(--bg-deep) 100%);
+  /* Фирменный синий фон IRFIX (под эмодзи-«звёздами») */
+  background-color: #020b2e;
+  background-image: url("/app-bg.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
   color: var(--text);
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;

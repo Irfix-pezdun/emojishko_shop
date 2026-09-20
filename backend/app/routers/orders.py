@@ -18,6 +18,12 @@ def _format_notification(order: OrderCreateIn, user: TelegramUser) -> str:
         f"Тема: {order.theme}",
         f"Количество: {order.emoji_count}",
     ]
+    if order.nick:
+        lines.append(f"Ник: {order.nick}")
+    if order.logo:
+        lines.append(f"Лого: {order.logo}")
+    if order.colors:
+        lines.append(f"Цвета: {order.colors}")
     if order.styles:
         lines.append(f"Стиль: {', '.join(order.styles)}")
     if order.pack_style_hint:

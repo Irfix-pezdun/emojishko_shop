@@ -1,67 +1,67 @@
 import { useEffect, useState } from "react";
-import { getTelegramUser, setMainButton, hideMainButton, haptic } from "../../telegram";
-import { submitOrder } from "../../api";
+import { createOrder } from "../../api";
+import { haptic, setMainButton, hideMainButton } from "../../telegram";
 import "./index.css";
 
-const STYLE_PRESETS = ["Минимализм", "Мемные реакции", "Персонажи", "Брендированные под проект"];
+const STYLE_PRESETS = ["Минимализм", "Мемы", "Персонажи", "Неон", "Cute", "Киберпанк"];
 
 export default function OrderForm({ prefillStyle, onDone }) {
-  const tgUser = getTelegramUser();
-
   const [theme, setTheme] = useState("");
   const [count, setCount] = useState(16);
-  const [styles, setStyles] = useState(prefillStyle ? [] : []);
+  const [styles, setStyles] = useState([]);
+  const [nick, setNick] = useState("");
+  const [logo, setLogo] = useState("");
+  const [colors, setColors] = useState("");
   const [references, setReferences] = useState("");
-  const [contact, setContact] = useState(tgUser?.username ? `@${tgUser.username}` : "");
+  const [contact, setContact] = useState("");
   const [comment, setComment] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState(null);
 
+  const valid = theme.trim().length >= 2 && nick.trim().length >= 1;
+
   const toggleStyle = (s) => {
     setStyles((prev) => (prev.includes(s) ? prev.filter((x) => x !== s) : [...prev, s]));
   };
-
-  const valid = theme.trim().length > 0 && count >= 1;
 
   const handleSubmit = async () => {
     if (!valid || submitting) return;
     setSubmitting(true);
     setError(null);
     try {
-      await submitOrder({
-        theme,
+      await createOrder({
+        theme: theme.trim(),
         emoji_count: count,
         styles,
-        references: references || null,
-        contact: contact || null,
-        comment: comment || null,
+        nick: nick.trim(),
+        logo: logo.trim() || null,
+        colors: colors.trim() || null,
+        references: references.trim() || null,
+        contact: contact.trim() || null,
+        comment: comment.trim() || null,
         pack_style_hint: prefillStyle || null,
       });
       haptic("success");
       setSubmitted(true);
+      hideMainButton();
     } catch (e) {
+      setError(e.message || "Не удалось отправить. Попробуй позже.");
       haptic("error");
-      setError(e.message);
     } finally {
       setSubmitting(false);
     }
   };
 
   useEffect(() => {
-    if (submitted) {
-      hideMainButton();
-      return undefined;
-    }
-    const off = setMainButton({
-      text: "Отправить заявку",
-      visible: true,
-      disabled: !valid || submitting,
+    setMainButton({
+      text: submitting ? "Отправляю…" : "Отправить заявку",
+      visible: !submitted,
+      active: valid && !submitting,
       onClick: handleSubmit,
     });
-    return off;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [valid, submitting, submitted, theme, count, styles, references, contact, comment]);
+  }, [valid, submitting, submitted, theme, nick, logo, colors, count, styles, references, contact, comment]);
 
   useEffect(() => () => hideMainButton(), []);
 
@@ -69,7 +69,9 @@ export default function OrderForm({ prefillStyle, onDone }) {
     return (
       <div className="screen">
         <h2>Заявка отправлена ✅</h2>
-        <p className="muted">Я напишу вам в течение суток.</p>
+        <p className="muted">
+          Я напишу вам в течение суток. Если есть SVG-логотип — пришлите его в личку.
+        </p>
         <button className="btn btn-secondary" onClick={onDone}>
           На главную
         </button>
@@ -83,7 +85,37 @@ export default function OrderForm({ prefillStyle, onDone }) {
       {prefillStyle && <p className="muted">В стиле пака «{prefillStyle}»</p>}
 
       <label className="order-form__field">
-        <span>Тема / концепция пака</span>
+        <span>Ник / бренд *</span>
+        <input
+          value={nick}
+          onChange={(e) => setNick(e.target.value)}
+          placeholder="Как подписать эмодзи"
+          maxLength={64}
+        />
+      </label>
+
+      <label className="order-form__field">
+        <span>Цвета</span>
+        <input
+          value={colors}
+          onChange={(e) => setColors(e.target.value)}
+          placeholder="Синий и белый или #00A3FF #FFFFFF"
+          maxLength={200}
+        />
+      </label>
+
+      <label className="order-form__field">
+        <span>Логотип (ссылка SVG/PNG или «в личку»)</span>
+        <input
+          value={logo}
+          onChange={(e) => setLogo(e.target.value)}
+          placeholder="Ссылка или: пришлю в личку"
+          maxLength={500}
+        />
+      </label>
+
+      <label className="order-form__field">
+        <span>Тема / концепция пака *</span>
         <textarea
           rows={3}
           value={theme}
@@ -134,7 +166,6 @@ export default function OrderForm({ prefillStyle, onDone }) {
 
       {error && <div className="warning-banner">{error}</div>}
 
-      {/* запасная кнопка на случай если MainButton недоступен (например, открыто не из Telegram) */}
       <button className="btn btn-primary" onClick={handleSubmit} disabled={!valid || submitting}>
         {submitting ? "Отправляю…" : "Отправить заявку"}
       </button>

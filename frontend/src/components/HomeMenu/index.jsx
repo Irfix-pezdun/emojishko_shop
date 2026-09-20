@@ -1,24 +1,34 @@
 import "./index.css";
 
-export default function HomeMenu({ onNavigate, authorName = "IRFIX" }) {
+/**
+ * Главный экран = твой макет (home-bg.jpg).
+ * Кнопки уже нарисованы на картинке — поверх невидимые hit-зоны.
+ * Живые TGS на главной не ставим: не спорят с голубым IRFIX.
+ */
+export default function HomeMenu({ onNavigate }) {
   return (
     <div className="home">
-      <div className="home__hero">
-        <div className="home__logo">✦</div>
-        <h1 className="home__title">{authorName}</h1>
-        <p className="home__tagline">Кастомные эмодзи-паки для Telegram</p>
-      </div>
+      <div className="home__art" role="img" aria-label="IRFIX DESIGN — Animated Emoji Shop" />
 
-      <div className="stack">
-        <button className="btn btn-primary home__cta" onClick={() => onNavigate("free-emoji")}>
-          🎁 Получить бесплатный эмодзи
-        </button>
-        <button className="btn btn-secondary" onClick={() => onNavigate("portfolio")}>
-          ✨ Примеры работ
-        </button>
-        <button className="btn btn-secondary" onClick={() => onNavigate("about")}>
-          👤 О дизайнере
-        </button>
+      <div className="home__hits">
+        <button
+          type="button"
+          className="home__hit home__hit--free"
+          aria-label="Получить бесплатный эмодзи"
+          onClick={() => onNavigate("free-emoji")}
+        />
+        <button
+          type="button"
+          className="home__hit home__hit--portfolio"
+          aria-label="Примеры работ"
+          onClick={() => onNavigate("portfolio")}
+        />
+        <button
+          type="button"
+          className="home__hit home__hit--about"
+          aria-label="О дизайнере"
+          onClick={() => onNavigate("about")}
+        />
       </div>
     </div>
   );
