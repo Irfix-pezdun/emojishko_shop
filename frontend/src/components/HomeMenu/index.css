@@ -7,7 +7,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 12px 16px 28px;
+  padding: 16px 18px 28px;
   overflow: hidden;
 }
 
@@ -18,7 +18,6 @@
   z-index: 0;
 }
 
-/* --- звёзды --- */
 .home__stars {
   position: absolute;
   inset: 0;
@@ -31,8 +30,8 @@
   width: 3px;
   height: 3px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.85);
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+  background: rgba(180, 210, 255, 0.9);
+  box-shadow: 0 0 8px rgba(100, 180, 255, 0.6);
   animation: home-twinkle 3.5s ease-in-out infinite;
 }
 
@@ -50,17 +49,16 @@
 .home__star--12 { top: 6%; left: 48%; animation-delay: 2.8s; }
 
 @keyframes home-twinkle {
-  0%, 100% { opacity: 0.25; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.15); }
+  0%, 100% { opacity: 0.2; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.2); }
 }
 
-/* --- лого --- */
 .home__header {
   position: relative;
   z-index: 2;
-  width: min(100%, 420px);
-  margin-top: 8px;
-  margin-bottom: 8px;
+  width: min(100%, 340px);
+  margin-top: 12px;
+  margin-bottom: 20px;
   animation: home-fade-in 0.6s ease both;
 }
 
@@ -69,11 +67,11 @@
   width: 100%;
   height: auto;
   object-fit: contain;
-  max-height: 120px;
-  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.15));
+  max-height: 100px;
+  /* без тёмной плашки — только лёгкое голубое свечение */
+  filter: drop-shadow(0 0 12px rgba(80, 160, 255, 0.45));
 }
 
-/* --- кнопки --- */
 .home__nav {
   position: relative;
   z-index: 2;
@@ -96,11 +94,10 @@
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  border-radius: 22px;
-  /* появление + лёгкий белый pulse-glow */
+  border-radius: 20px;
   animation:
     home-btn-in 0.55s ease both,
-    home-white-glow 2.8s ease-in-out infinite;
+    home-blue-glow 2.6s ease-in-out infinite;
 }
 
 .home__btn img {
@@ -114,17 +111,13 @@
 
 .home__btn:active {
   transform: scale(0.98);
-  filter: brightness(1.08);
-}
-
-.home__btn--free {
-  /* FREE выше */
+  filter: brightness(1.1);
 }
 
 @keyframes home-btn-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -137,25 +130,28 @@
   to { opacity: 1; }
 }
 
-/* мягкий белый «пульс» свечения */
-@keyframes home-white-glow {
+/* мягкое голубое pulse-glow */
+@keyframes home-blue-glow {
   0%, 100% {
     box-shadow:
-      0 0 8px 0 rgba(255, 255, 255, 0.12),
-      0 0 20px 0 rgba(180, 210, 255, 0.1);
+      0 0 10px 0 rgba(61, 158, 255, 0.2),
+      0 0 22px 0 rgba(30, 120, 255, 0.12);
   }
   50% {
     box-shadow:
-      0 0 14px 2px rgba(255, 255, 255, 0.28),
-      0 0 28px 4px rgba(200, 220, 255, 0.16);
+      0 0 16px 2px rgba(100, 190, 255, 0.4),
+      0 0 32px 6px rgba(50, 140, 255, 0.22);
   }
 }
 
 @media (max-height: 700px) {
   .home__logo {
-    max-height: 88px;
+    max-height: 72px;
   }
   .home__nav {
     gap: 10px;
+  }
+  .home__header {
+    margin-bottom: 12px;
   }
 }
