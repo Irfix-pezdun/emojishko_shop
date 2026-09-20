@@ -58,3 +58,4 @@ export const claimFreeEmoji = (payload) =>
   request("/api/free-emoji/claim", { method: "POST", body: payload });
 
 export const submitOrder = (order) => request("/api/order", { method: "POST", body: order });
+export const createOrder = submitOrder;
