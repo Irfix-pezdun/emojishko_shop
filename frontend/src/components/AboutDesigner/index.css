@@ -27,7 +27,7 @@
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--accent-cool-1), var(--accent-hot-1));
+  background: linear-gradient(135deg, #8aa8ff, #3d9eff);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

@@ -1,4 +1,4 @@
-import { submitOrder as createOrder } from "../../api";
+import { useEffect, useState } from "react";
 import { createOrder } from "../../api";
 import { haptic, setMainButton, hideMainButton } from "../../telegram";
 import "./index.css";

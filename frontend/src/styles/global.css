@@ -103,9 +103,10 @@ a {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent-hot-1), var(--accent-hot-2));
-  color: #1a0b12;
-  box-shadow: 0 8px 24px -8px rgba(255, 111, 156, 0.55);
+  /* IRFIX blue — вместо оранжево-розового */
+  background: linear-gradient(135deg, #3d9eff 0%, #1a6bff 50%, #0d4ecc 100%);
+  color: #ffffff;
+  box-shadow: 0 8px 28px -8px rgba(61, 158, 255, 0.55);
 }
 
 .btn-secondary {

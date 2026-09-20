@@ -4,57 +4,158 @@
   flex: 1;
   width: 100%;
   min-height: 100%;
-  background: #020b2e;
-}
-
-.home__art {
-  position: absolute;
-  inset: 0;
-  background: url("/home-bg.jpg") center top / cover no-repeat;
-  background-color: #020b2e;
-}
-
-.home__hits {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: min(92%, 420px);
-  top: 28%;
-  bottom: 8%;
   display: flex;
   flex-direction: column;
-  gap: 2.2%;
-  z-index: 2;
+  align-items: center;
+  padding: 12px 16px 28px;
+  overflow: hidden;
 }
 
-.home__hit {
-  flex: 1;
+.home__bg {
+  position: absolute;
+  inset: 0;
+  background: #020b2e url("/app-bg.jpg") center / cover no-repeat;
+  z-index: 0;
+}
+
+/* --- звёзды --- */
+.home__stars {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.home__star {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.5);
+  animation: home-twinkle 3.5s ease-in-out infinite;
+}
+
+.home__star--1 { top: 8%; left: 12%; animation-delay: 0s; }
+.home__star--2 { top: 14%; left: 78%; animation-delay: 0.4s; width: 2px; height: 2px; }
+.home__star--3 { top: 22%; left: 88%; animation-delay: 1.1s; }
+.home__star--4 { top: 18%; left: 6%; animation-delay: 1.6s; width: 2px; height: 2px; }
+.home__star--5 { top: 48%; left: 4%; animation-delay: 0.8s; }
+.home__star--6 { top: 55%; left: 94%; animation-delay: 2s; width: 2px; height: 2px; }
+.home__star--7 { top: 72%; left: 8%; animation-delay: 1.3s; }
+.home__star--8 { top: 80%; left: 90%; animation-delay: 0.2s; }
+.home__star--9 { top: 38%; left: 92%; animation-delay: 2.4s; width: 2px; height: 2px; }
+.home__star--10 { top: 90%; left: 20%; animation-delay: 1.8s; }
+.home__star--11 { top: 92%; left: 70%; animation-delay: 0.6s; width: 2px; height: 2px; }
+.home__star--12 { top: 6%; left: 48%; animation-delay: 2.8s; }
+
+@keyframes home-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+/* --- лого --- */
+.home__header {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 420px);
+  margin-top: 8px;
+  margin-bottom: 8px;
+  animation: home-fade-in 0.6s ease both;
+}
+
+.home__logo {
+  display: block;
   width: 100%;
-  margin: 0;
+  height: auto;
+  object-fit: contain;
+  max-height: 120px;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.15));
+}
+
+/* --- кнопки --- */
+.home__nav {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 400px);
+  margin-top: auto;
+  margin-bottom: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.home__btn {
+  position: relative;
+  display: block;
+  width: 100%;
   padding: 0;
+  margin: 0;
   border: none;
-  border-radius: 22px;
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
+  border-radius: 22px;
+  /* появление + лёгкий белый pulse-glow */
+  animation:
+    home-btn-in 0.55s ease both,
+    home-white-glow 2.8s ease-in-out infinite;
 }
 
-.home__hit:active {
-  background: rgba(255, 255, 255, 0.06);
+.home__btn img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 18px;
+  pointer-events: none;
+  user-select: none;
 }
 
-.home__hit--free {
-  flex: 1.55;
+.home__btn:active {
+  transform: scale(0.98);
+  filter: brightness(1.08);
 }
 
-.home__hit--portfolio,
-.home__hit--about {
-  flex: 1;
+.home__btn--free {
+  /* FREE выше */
+}
+
+@keyframes home-btn-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes home-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* мягкий белый «пульс» свечения */
+@keyframes home-white-glow {
+  0%, 100% {
+    box-shadow:
+      0 0 8px 0 rgba(255, 255, 255, 0.12),
+      0 0 20px 0 rgba(180, 210, 255, 0.1);
+  }
+  50% {
+    box-shadow:
+      0 0 14px 2px rgba(255, 255, 255, 0.28),
+      0 0 28px 4px rgba(200, 220, 255, 0.16);
+  }
 }
 
 @media (max-height: 700px) {
-  .home__hits {
-    top: 30%;
-    bottom: 6%;
+  .home__logo {
+    max-height: 88px;
+  }
+  .home__nav {
+    gap: 10px;
   }
 }
