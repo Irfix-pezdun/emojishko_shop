@@ -3,19 +3,19 @@ import "./index.css";
 const BUTTONS = [
   {
     id: "free",
-    src: "/btn-free.png",
+    src: "/btn-free.svg",
     label: "Получить бесплатный эмодзи",
     screen: "free-emoji",
   },
   {
     id: "portfolio",
-    src: "/btn-portfolio.png",
+    src: "/btn-portfolio.svg",
     label: "Примеры работ",
     screen: "portfolio",
   },
   {
     id: "about",
-    src: "/btn-about.png",
+    src: "/btn-about.svg",
     label: "О дизайнере",
     screen: "about",
   },

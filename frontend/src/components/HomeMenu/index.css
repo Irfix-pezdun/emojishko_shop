@@ -31,7 +31,7 @@
   height: 3px;
   border-radius: 50%;
   background: rgba(180, 210, 255, 0.9);
-  box-shadow: 0 0 8px rgba(100, 180, 255, 0.6);
+  box-shadow: 0 0 8px rgba(100, 180, 255, 0.55);
   animation: home-twinkle 3.5s ease-in-out infinite;
 }
 
@@ -68,8 +68,7 @@
   height: auto;
   object-fit: contain;
   max-height: 100px;
-  /* без тёмной плашки — только лёгкое голубое свечение */
-  filter: drop-shadow(0 0 12px rgba(80, 160, 255, 0.45));
+  filter: drop-shadow(0 0 14px rgba(80, 160, 255, 0.5));
 }
 
 .home__nav {
@@ -80,7 +79,7 @@
   margin-bottom: auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
   align-items: stretch;
 }
 
@@ -94,24 +93,27 @@
   background: transparent;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-  border-radius: 20px;
-  animation:
-    home-btn-in 0.55s ease both,
-    home-blue-glow 2.6s ease-in-out infinite;
+  /* появление; glow — на img через drop-shadow (не прямоугольная рамка) */
+  animation: home-btn-in 0.55s ease both;
 }
 
 .home__btn img {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: 18px;
   pointer-events: none;
   user-select: none;
+  /* голубое свечение по форме кнопки, без тёмной подложки */
+  filter: drop-shadow(0 0 10px rgba(61, 158, 255, 0.45))
+    drop-shadow(0 0 22px rgba(30, 120, 255, 0.25));
+  animation: home-blue-glow 2.8s ease-in-out infinite;
 }
 
-.home__btn:active {
+.home__btn:active img {
   transform: scale(0.98);
-  filter: brightness(1.1);
+  filter: brightness(1.08)
+    drop-shadow(0 0 14px rgba(100, 190, 255, 0.55))
+    drop-shadow(0 0 28px rgba(50, 140, 255, 0.3));
 }
 
 @keyframes home-btn-in {
@@ -130,17 +132,14 @@
   to { opacity: 1; }
 }
 
-/* мягкое голубое pulse-glow */
 @keyframes home-blue-glow {
   0%, 100% {
-    box-shadow:
-      0 0 10px 0 rgba(61, 158, 255, 0.2),
-      0 0 22px 0 rgba(30, 120, 255, 0.12);
+    filter: drop-shadow(0 0 8px rgba(61, 158, 255, 0.35))
+      drop-shadow(0 0 18px rgba(30, 120, 255, 0.18));
   }
   50% {
-    box-shadow:
-      0 0 16px 2px rgba(100, 190, 255, 0.4),
-      0 0 32px 6px rgba(50, 140, 255, 0.22);
+    filter: drop-shadow(0 0 14px rgba(100, 190, 255, 0.55))
+      drop-shadow(0 0 28px rgba(50, 140, 255, 0.32));
   }
 }
 
@@ -149,7 +148,7 @@
     max-height: 72px;
   }
   .home__nav {
-    gap: 10px;
+    gap: 12px;
   }
   .home__header {
     margin-bottom: 12px;
