@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTgs } from "../../lib/tgs";
 import "./index.css";
 
+/** Обложка пака: один проигрыш, без бесконечного loop — иначе 20+ lottie = 5 FPS */
 function PackCover({ url }) {
-  const ref = useTgs(url, { loop: true, autoplay: true });
+  const ref = useTgs(url, { loop: false, autoplay: true });
   return <div className="pack-card__cover" ref={ref} />;
 }
 
+/** Только активный кадр монтирует lottie */
 function EmojiFrame({ url, active }) {
   const ref = useTgs(url, { loop: true, autoplay: active, active });
   return <div className="pack-viewer__emoji" ref={ref} />;
@@ -30,6 +32,8 @@ function PackViewer({ pack, onBack, onOrderSimilar }) {
     touchStartX.current = null;
   };
 
+  const current = pack.emoji[index];
+
   return (
     <div className="pack-viewer">
       <button className="btn-ghost pack-viewer__back" onClick={onBack}>
@@ -43,11 +47,11 @@ function PackViewer({ pack, onBack, onOrderSimilar }) {
         <button className="pack-viewer__nav pack-viewer__nav--prev" onClick={() => go(-1)} aria-label="Предыдущий">
           ‹
         </button>
-        {pack.emoji.map((e, i) => (
-          <div key={e.id} className="pack-viewer__slide" style={{ display: i === index ? "block" : "none" }}>
-            <EmojiFrame url={e.url} active={i === index} />
+        {current && (
+          <div className="pack-viewer__slide">
+            <EmojiFrame key={current.id} url={current.url} active />
           </div>
-        ))}
+        )}
         <button className="pack-viewer__nav pack-viewer__nav--next" onClick={() => go(1)} aria-label="Следующий">
           ›
         </button>
@@ -64,9 +68,21 @@ function PackViewer({ pack, onBack, onOrderSimilar }) {
   );
 }
 
+const HIDDEN_TITLES = new Set(["первая коллекция", "first collection"]);
+const HIDDEN_IDS = new Set(["pack-001", "pack_001", "first"]);
+
 export default function PortfolioGallery({ packs, onOrderSimilar }) {
   const [selectedId, setSelectedId] = useState(null);
-  const selected = packs.find((p) => p.id === selectedId);
+
+  const visible = (packs || []).filter((p) => {
+    const title = (p.title || "").trim().toLowerCase();
+    const id = (p.id || "").trim().toLowerCase();
+    if (HIDDEN_IDS.has(id)) return false;
+    if (HIDDEN_TITLES.has(title)) return false;
+    return true;
+  });
+
+  const selected = visible.find((p) => p.id === selectedId);
 
   if (selected) {
     return (
@@ -79,9 +95,9 @@ export default function PortfolioGallery({ packs, onOrderSimilar }) {
   return (
     <div className="screen">
       <h2>Примеры работ</h2>
-      {packs.length === 0 && <p className="muted">Паки скоро появятся здесь.</p>}
+      {visible.length === 0 && <p className="muted">Паки скоро появятся здесь.</p>}
       <div className="pack-grid">
-        {packs.map((pack) => (
+        {visible.map((pack) => (
           <button key={pack.id} className="pack-card card" onClick={() => setSelectedId(pack.id)}>
             <PackCover url={pack.cover_url} />
             <div className="pack-card__title">{pack.title}</div>
