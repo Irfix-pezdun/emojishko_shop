@@ -96,3 +96,11 @@ export async function deletePackEmoji(packId, emojiId) {
   );
   return { ...data, packs: (data.packs || []).map(normalizePack) };
 }
+
+export async function reorderPacks(order) {
+  const data = await request("/api/admin/packs/reorder", {
+    method: "POST",
+    body: { order },
+  });
+  return { ...data, packs: (data.packs || []).map(normalizePack) };
+}

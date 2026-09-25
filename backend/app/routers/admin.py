@@ -35,56 +35,11 @@ def require_bot_token(authorization: str = Header(default="")) -> None:
         raise HTTPException(401, "Неверный токен")
 
 
+
 async def require_admin_user(user: TelegramUser = Depends(require_telegram_user)) -> TelegramUser:
     if not settings.is_admin_id(user.id):
         raise HTTPException(403, "Только автор может управлять паками")
     return user
-
-
-class PackUpdateIn(BaseModel):
-    title: str | None = Field(None, min_length=1, max_length=80)
-    cover: str | None = Field(None, max_length=64)  # имя файла без пути, напр. e001.tgs или e001
-
-
-class PackCreateIn(BaseModel):
-    title: str = Field(..., min_length=1, max_length=80)
-    id: str | None = Field(None, max_length=64)
-
-
-def _slugify(name: str) -> str:
-    tr = {
-        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e", "ж": "zh", "з": "z",
-        "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o", "п": "p", "р": "r",
-        "с": "s", "т": "t", "у": "u", "ф": "f", "х": "h", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sch",
-        "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
-    }
-    s = "".join(tr.get(c.lower(), c) for c in name)
-    s = re.sub(r"[^a-zA-Z0-9]+", "-", s).strip("-").lower() or "pack"
-    return s[:48]
-
-
-def _pack_dir(pack_id: str) -> Path:
-    safe = Path(pack_id).name  # no path traversal
-    d = settings.assets_dir / safe
-    if not d.exists() or not d.is_dir():
-        raise HTTPException(404, f"Пак «{pack_id}» не найден")
-    return d
-
-
-def _load_meta(pack_dir: Path) -> dict:
-    meta_file = pack_dir / "pack.json"
-    if meta_file.exists():
-        try:
-            return json.loads(meta_file.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            pass
-    return {"id": pack_dir.name, "title": pack_dir.name, "tags": [], "description": "", "order": 999}
-
-
-def _save_meta(pack_dir: Path, meta: dict) -> None:
-    (pack_dir / "pack.json").write_text(
-        json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
 
 
 @router.get("/leads", response_model=list[LeadOut], dependencies=[Depends(require_bot_token)])
@@ -115,19 +70,92 @@ def admin_refresh_catalog():
     return get_catalog(force_refresh=True)
 
 
+
+
+class PackUpdateIn(BaseModel):
+    title: str | None = Field(None, min_length=1, max_length=80)
+    cover: str | None = Field(None, max_length=64)
+    sort_order: int | None = Field(None, ge=0, le=9999)
+
+
+class PackCreateIn(BaseModel):
+    title: str = Field(..., min_length=1, max_length=80)
+    id: str | None = Field(None, max_length=64)
+
+
+class PackReorderIn(BaseModel):
+    """Список pack_id в нужном порядке (первый = сверху)."""
+    order: list[str] = Field(..., min_length=1)
+
+
+def _slugify(name: str) -> str:
+    tr = {
+        "а": "a", "б": "b", "в": "v", "г": "g", "д": "d", "е": "e", "ё": "e", "ж": "zh", "з": "z",
+        "и": "i", "й": "y", "к": "k", "л": "l", "м": "m", "н": "n", "о": "o", "п": "p", "р": "r",
+        "с": "s", "т": "t", "у": "u", "ф": "f", "х": "h", "ц": "ts", "ч": "ch", "ш": "sh", "щ": "sch",
+        "ъ": "", "ы": "y", "ь": "", "э": "e", "ю": "yu", "я": "ya",
+    }
+    s = "".join(tr.get(c.lower(), c) for c in name)
+    s = re.sub(r"[^a-zA-Z0-9]+", "-", s).strip("-").lower() or "pack"
+    return s[:48]
+
+
+def _pack_dir(pack_id: str) -> Path:
+    safe = Path(pack_id).name
+    d = settings.assets_dir / safe
+    if not d.exists() or not d.is_dir():
+        raise HTTPException(404, f"Пак «{pack_id}» не найден")
+    return d
+
+
+def _load_meta(pack_dir: Path) -> dict:
+    meta_file = pack_dir / "pack.json"
+    if meta_file.exists():
+        try:
+            return json.loads(meta_file.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            pass
+    return {"id": pack_dir.name, "title": pack_dir.name, "tags": [], "description": "", "order": 999}
+
+
+def _save_meta(pack_dir: Path, meta: dict) -> None:
+    try:
+        (pack_dir / "pack.json").write_text(
+            json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+    except OSError:
+        pass  # на read-only FS пишем только в БД
+
+
+def _upsert_db_meta(db: Session, pack_id: str, *, title=None, cover=None, sort_order=None):
+    from ..models import PackMeta
+
+    row = db.query(PackMeta).filter(PackMeta.pack_id == pack_id).first()
+    if not row:
+        row = PackMeta(pack_id=pack_id)
+        db.add(row)
+    if title is not None:
+        row.title = title
+    if cover is not None:
+        row.cover = cover
+    if sort_order is not None:
+        row.sort_order = sort_order
+    db.commit()
+
+
 @router.patch("/packs/{pack_id}", response_model=CatalogOut)
 async def update_pack(
     pack_id: str,
     body: PackUpdateIn,
+    db: Session = Depends(get_db),
     _user: TelegramUser = Depends(require_admin_user),
 ):
-    """Переименовать пак и/или сменить обложку (cover = e001 или e001.tgs)."""
+    """Название, обложка, порядок — в SQLite (не сбрасывается при перезаходе)."""
     pack_dir = _pack_dir(pack_id)
     meta = _load_meta(pack_dir)
 
     if body.title is not None:
         meta["title"] = body.title.strip()
-
     if body.cover is not None:
         cover = body.cover.strip()
         if not cover.endswith(".tgs"):
@@ -135,18 +163,58 @@ async def update_pack(
         if not (pack_dir / cover).exists():
             raise HTTPException(400, f"Файла {cover} нет в паке")
         meta["cover"] = cover
+    if body.sort_order is not None:
+        meta["order"] = body.sort_order
 
     meta["id"] = meta.get("id") or pack_dir.name
     _save_meta(pack_dir, meta)
+    _upsert_db_meta(
+        db,
+        pack_id,
+        title=meta.get("title"),
+        cover=meta.get("cover"),
+        sort_order=meta.get("order"),
+    )
+    from ..catalog import invalidate_catalog_cache
+
+    invalidate_catalog_cache()
+    return get_catalog(force_refresh=True)
+
+
+@router.post("/packs/reorder", response_model=CatalogOut)
+async def reorder_packs(
+    body: PackReorderIn,
+    db: Session = Depends(get_db),
+    _user: TelegramUser = Depends(require_admin_user),
+):
+    """Порядок списка: первый id = самый верхний в «Примеры работ»."""
+    from ..models import PackMeta
+    from ..catalog import invalidate_catalog_cache
+
+    for i, pid in enumerate(body.order):
+        safe = Path(pid).name
+        row = db.query(PackMeta).filter(PackMeta.pack_id == safe).first()
+        if not row:
+            row = PackMeta(pack_id=safe)
+            db.add(row)
+        row.sort_order = i + 1
+        # mirror to pack.json if possible
+        d = settings.assets_dir / safe
+        if d.is_dir():
+            meta = _load_meta(d)
+            meta["order"] = i + 1
+            _save_meta(d, meta)
+    db.commit()
+    invalidate_catalog_cache()
     return get_catalog(force_refresh=True)
 
 
 @router.post("/packs", response_model=CatalogOut)
 async def create_pack(
     body: PackCreateIn,
+    db: Session = Depends(get_db),
     _user: TelegramUser = Depends(require_admin_user),
 ):
-    """Создать пустой пак (потом загрузи .tgs)."""
     settings.assets_dir.mkdir(parents=True, exist_ok=True)
     raw_id = (body.id or _slugify(body.title)).strip()
     pack_id = _slugify(raw_id)
@@ -162,6 +230,10 @@ async def create_pack(
         "order": 999,
     }
     _save_meta(dest, meta)
+    _upsert_db_meta(db, pack_id, title=meta["title"], sort_order=999)
+    from ..catalog import invalidate_catalog_cache
+
+    invalidate_catalog_cache()
     return get_catalog(force_refresh=True)
 
 
@@ -169,9 +241,9 @@ async def create_pack(
 async def upload_emoji(
     pack_id: str,
     file: UploadFile = File(...),
+    db: Session = Depends(get_db),
     _user: TelegramUser = Depends(require_admin_user),
 ):
-    """Загрузить .tgs в пак."""
     pack_dir = _pack_dir(pack_id)
     name = (file.filename or "emoji.tgs").lower()
     if not name.endswith(".tgs"):
@@ -180,7 +252,6 @@ async def upload_emoji(
     existing = sorted(pack_dir.glob("*.tgs"))
     next_n = len(existing) + 1
     dest_name = f"e{next_n:03d}.tgs"
-    # avoid overwrite
     while (pack_dir / dest_name).exists():
         next_n += 1
         dest_name = f"e{next_n:03d}.tgs"
@@ -197,7 +268,11 @@ async def upload_emoji(
     if not meta.get("cover"):
         meta["cover"] = dest_name
         _save_meta(pack_dir, meta)
+        _upsert_db_meta(db, pack_id, cover=dest_name)
 
+    from ..catalog import invalidate_catalog_cache
+
+    invalidate_catalog_cache()
     return get_catalog(force_refresh=True)
 
 
@@ -205,6 +280,7 @@ async def upload_emoji(
 async def delete_emoji(
     pack_id: str,
     emoji_id: str,
+    db: Session = Depends(get_db),
     _user: TelegramUser = Depends(require_admin_user),
 ):
     pack_dir = _pack_dir(pack_id)
@@ -220,5 +296,9 @@ async def delete_emoji(
         left = sorted(pack_dir.glob("*.tgs"))
         meta["cover"] = left[0].name if left else None
         _save_meta(pack_dir, meta)
+        _upsert_db_meta(db, pack_id, cover=meta.get("cover"))
 
+    from ..catalog import invalidate_catalog_cache
+
+    invalidate_catalog_cache()
     return get_catalog(force_refresh=True)

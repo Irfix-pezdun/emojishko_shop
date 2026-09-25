@@ -4,6 +4,7 @@ import {
   updatePack,
   uploadPackEmoji,
   deletePackEmoji,
+  reorderPacks,
 } from "../../api";
 import { useTgs } from "../../lib/tgs";
 import "./index.css";
@@ -59,6 +60,17 @@ export default function AdminPacks({ packs, onPacksChange }) {
     run(() => updatePack(selected.id, { cover: emoji.id }));
   };
 
+  const movePack = (packId, dir) => {
+    const ids = packs.map((p) => p.id);
+    const i = ids.indexOf(packId);
+    if (i < 0) return;
+    const j = i + dir;
+    if (j < 0 || j >= ids.length) return;
+    const next = [...ids];
+    [next[i], next[j]] = [next[j], next[i]];
+    run(() => reorderPacks(next));
+  };
+
   const onUpload = (e) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -85,8 +97,8 @@ export default function AdminPacks({ packs, onPacksChange }) {
     <div className="screen admin-packs">
       <h2>Управление паками</h2>
       <p className="muted admin-packs__hint">
-        Только для автора. На Render бесплатный диск может сбрасываться при деплое —
-        важные паки лучше дублировать в Git.
+        Обложка, название и порядок сохраняются в базе. Стрелки ↑↓ — позиция в «Примеры работ»
+        (верх = первый).
       </p>
 
       <div className="admin-packs__create card">
@@ -104,19 +116,36 @@ export default function AdminPacks({ packs, onPacksChange }) {
       </div>
 
       <div className="admin-packs__list">
-        {packs.map((p) => (
-          <button
+        {packs.map((p, idx) => (
+          <div
             key={p.id}
-            type="button"
             className={`admin-pack-item card ${selectedId === p.id ? "is-active" : ""}`}
-            onClick={() => select(p)}
           >
-            <MiniTgs url={p.cover_url} />
-            <div>
-              <div className="admin-pack-item__title">{p.title}</div>
-              <div className="muted">{p.emoji?.length || 0} эмодзи · {p.id}</div>
+            <button type="button" className="admin-pack-item__main" onClick={() => select(p)}>
+              <MiniTgs url={p.cover_url} />
+              <div>
+                <div className="admin-pack-item__title">
+                  <span className="admin-pack-item__pos">{idx + 1}.</span> {p.title}
+                </div>
+                <div className="muted">
+                  {p.emoji?.length || 0} эмодзи · {p.id}
+                </div>
+              </div>
+            </button>
+            <div className="admin-pack-item__sort">
+              <button type="button" disabled={busy || idx === 0} onClick={() => movePack(p.id, -1)} aria-label="Выше">
+                ↑
+              </button>
+              <button
+                type="button"
+                disabled={busy || idx === packs.length - 1}
+                onClick={() => movePack(p.id, 1)}
+                aria-label="Ниже"
+              >
+                ↓
+              </button>
             </div>
-          </button>
+          </div>
         ))}
       </div>
 

@@ -34,3 +34,13 @@ class Lead(Base):
     # full_order: поля формы заказа
     payload = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+
+
+class PackMeta(Base):
+    """Переопределения названия / обложки / порядка — живут в SQLite, не сбрасываются при перезаходе."""
+    __tablename__ = "pack_meta"
+
+    pack_id = Column(String, primary_key=True)  # id папки пака
+    title = Column(String, nullable=True)
+    cover = Column(String, nullable=True)  # e001.tgs
+    sort_order = Column(Integer, nullable=True, default=999)

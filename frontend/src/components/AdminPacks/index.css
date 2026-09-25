@@ -90,3 +90,51 @@
 
 .admin-ok { color: #6dffb0; font-size: 13px; }
 .admin-err { color: #ff7b7b; font-size: 13px; }
+
+.admin-pack-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+}
+
+.admin-pack-item__main {
+  flex: 1;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  min-width: 0;
+  padding: 0;
+}
+
+.admin-pack-item__pos {
+  opacity: 0.55;
+  font-weight: 500;
+}
+
+.admin-pack-item__sort {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-pack-item__sort button {
+  width: 32px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid rgba(100, 180, 255, 0.35);
+  background: rgba(0, 40, 100, 0.5);
+  color: #cfe8ff;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.admin-pack-item__sort button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
