@@ -2,8 +2,7 @@ import { useEffect, useRef } from "react";
 import pako from "pako";
 import lottie from "lottie-web/build/player/lottie_canvas";
 
-// Кэш распакованных Lottie JSON по url — один и тот же эмодзи может одновременно
-// использоваться и в фоне, и в галерее, незачем качать/распаковывать его дважды.
+// Кэш распакованных Lottie JSON по url
 const dataCache = new Map();
 const inflight = new Map();
 
@@ -32,15 +31,10 @@ async function fetchAnimationData(url) {
   return promise;
 }
 
-/**
- * Создаёт и запускает lottie-анимацию из .tgs файла в переданном DOM-контейнере.
- * Использует canvas-рендерер (легче svg для десятков одновременных анимаций).
- * Возвращает объект { animation, destroy } либо null, если контейнер уже размонтирован.
- */
 export async function mountTgs(container, url, { loop = true, autoplay = true } = {}) {
   if (!container) return null;
   const animationData = await fetchAnimationData(url);
-  if (!container.isConnected) return null; // контейнер могли размонтировать пока грузили файл
+  if (!container.isConnected) return null;
 
   const animation = lottie.loadAnimation({
     container,
@@ -58,13 +52,46 @@ export async function mountTgs(container, url, { loop = true, autoplay = true } 
 }
 
 export function preloadTgs(url) {
+  if (!url) return Promise.resolve(null);
   return fetchAnimationData(url).catch(() => null);
 }
 
 /**
- * React-хук: монтирует TGS-анимацию в элемент, на который указывает возвращённый ref.
- * Сама следит за жизненным циклом (перезапускает при смене url, чистит при анмаунте).
+ * Параллельный preload с лимитом одновременных запросов.
+ * onProgress(done, total) — для прогресс-бара.
  */
+export async function preloadTgsMany(urls, { concurrency = 6, onProgress } = {}) {
+  const list = [...new Set((urls || []).filter(Boolean))];
+  const total = list.length;
+  let done = 0;
+  if (total === 0) {
+    onProgress?.(0, 0);
+    return;
+  }
+
+  let index = 0;
+  async function worker() {
+    while (index < list.length) {
+      const i = index++;
+      const url = list[i];
+      try {
+        await preloadTgs(url);
+      } catch {
+        /* ignore */
+      }
+      done += 1;
+      onProgress?.(done, total);
+    }
+  }
+
+  const n = Math.min(concurrency, list.length);
+  await Promise.all(Array.from({ length: n }, () => worker()));
+}
+
+export function isTgsCached(url) {
+  return Boolean(url && dataCache.has(url));
+}
+
 export function useTgs(url, { loop = true, autoplay = true, active = true } = {}) {
   const containerRef = useRef(null);
   const handleRef = useRef(null);

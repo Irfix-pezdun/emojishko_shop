@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { useTgs } from "../../lib/tgs";
+import { useState, useRef, useEffect } from "react";
+import { useTgs, preloadTgsMany } from "../../lib/tgs";
 import "./index.css";
 
 function PackCover({ url }) {
@@ -16,6 +16,12 @@ function PackViewer({ pack, onBack, onOrderSimilar }) {
   const [index, setIndex] = useState(0);
   const [animKey, setAnimKey] = useState(0);
   const touchStartX = useRef(null);
+
+  // догружаем весь пак в кэш — листание без ожидания сети
+  useEffect(() => {
+    const urls = (pack.emoji || []).map((e) => e.url);
+    preloadTgsMany(urls, { concurrency: 4 });
+  }, [pack.id]);
 
   const go = (delta) => {
     setIndex((i) => (i + delta + pack.emoji.length) % pack.emoji.length);

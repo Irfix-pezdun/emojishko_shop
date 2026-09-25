@@ -8,6 +8,39 @@ import OrderForm from "./components/OrderForm";
 import AdminPacks from "./components/AdminPacks";
 import { initTelegram, setBackButton, getTelegramUser } from "./telegram";
 import { getCatalog, getConfig } from "./api";
+import { preloadTgsMany } from "./lib/tgs";
+
+function BootScreen({ progress, label }) {
+  const pct = Math.round((progress || 0) * 100);
+  return (
+    <div className="boot-screen">
+      <div className="boot-screen__logo">IRFIX</div>
+      <p className="boot-screen__label">{label || "Готовим эмодзи…"}</p>
+      <div className="boot-screen__bar">
+        <div className="boot-screen__bar-fill" style={{ width: `${pct}%` }} />
+      </div>
+      <p className="boot-screen__pct muted">{pct}%</p>
+    </div>
+  );
+}
+
+/** Приоритет: обложки всех паков + весь IRFIX (FREE-референсы) */
+function collectPriorityUrls(packs) {
+  const urls = [];
+  for (const p of packs || []) {
+    if (p.cover_url) urls.push(p.cover_url);
+    const isIrfix =
+      (p.id || "").toLowerCase().includes("irfix") ||
+      (p.title || "").toLowerCase().includes("irfix") ||
+      (p.tags || []).includes("free-ref");
+    if (isIrfix) {
+      for (const e of p.emoji || []) {
+        if (e.url) urls.push(e.url);
+      }
+    }
+  }
+  return urls;
+}
 
 export default function App() {
   const [stack, setStack] = useState(["home"]);
@@ -18,6 +51,9 @@ export default function App() {
     author_telegram_id: "",
   });
   const [orderPrefill, setOrderPrefill] = useState(null);
+  const [booting, setBooting] = useState(true);
+  const [bootProgress, setBootProgress] = useState(0);
+  const [bootLabel, setBootLabel] = useState("Загрузка каталога…");
 
   const screen = stack[stack.length - 1];
 
@@ -29,13 +65,47 @@ export default function App() {
   }, [config.author_telegram_id]);
 
   useEffect(() => {
+    let cancelled = false;
     initTelegram();
-    getCatalog()
-      .then((res) => setPacks(res.packs))
-      .catch(() => setPacks([]));
-    getConfig()
-      .then(setConfig)
-      .catch(() => {});
+
+    (async () => {
+      try {
+        setBootLabel("Загрузка каталога…");
+        setBootProgress(0.05);
+        const [catalog, cfg] = await Promise.all([
+          getCatalog().catch(() => ({ packs: [] })),
+          getConfig().catch(() => ({})),
+        ]);
+        if (cancelled) return;
+        const nextPacks = catalog.packs || [];
+        setPacks(nextPacks);
+        setConfig((c) => ({ ...c, ...cfg }));
+
+        const priority = collectPriorityUrls(nextPacks);
+        setBootLabel(
+          priority.length
+            ? `Кэшируем эмодзи (${priority.length})…`
+            : "Почти готово…"
+        );
+        await preloadTgsMany(priority, {
+          concurrency: 6,
+          onProgress: (done, total) => {
+            if (cancelled || !total) return;
+            // 5%…100%
+            setBootProgress(0.05 + 0.95 * (done / total));
+          },
+        });
+      } finally {
+        if (!cancelled) {
+          setBootProgress(1);
+          setBooting(false);
+        }
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
@@ -51,9 +121,13 @@ export default function App() {
   };
 
   const backgroundEmojiUrls = useMemo(
-    () => packs.flatMap((p) => p.emoji.map((e) => e.url)),
+    () => packs.flatMap((p) => (p.emoji || []).slice(0, 2).map((e) => e.url)),
     [packs]
   );
+
+  if (booting) {
+    return <BootScreen progress={bootProgress} label={bootLabel} />;
+  }
 
   return (
     <>
@@ -61,9 +135,7 @@ export default function App() {
         <StarfieldBackground emojiUrls={backgroundEmojiUrls} density={0.5} />
       )}
 
-      {screen === "home" && (
-        <HomeMenu onNavigate={push} isAdmin={isAdmin} />
-      )}
+      {screen === "home" && <HomeMenu onNavigate={push} isAdmin={isAdmin} />}
 
       {screen === "portfolio" && (
         <PortfolioGallery packs={packs} onOrderSimilar={openOrder} />

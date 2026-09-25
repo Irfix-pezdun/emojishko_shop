@@ -180,3 +180,51 @@ select:focus {
     transition-duration: 0.01ms !important;
   }
 }
+
+
+/* --- Boot / preload --- */
+.boot-screen {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  background: radial-gradient(ellipse at 50% 30%, #0a1f6e 0%, #020b2e 70%);
+}
+
+.boot-screen__logo {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: 0.12em;
+  color: #9ec9ff;
+  text-shadow: 0 0 24px rgba(80, 160, 255, 0.45);
+}
+
+.boot-screen__label {
+  margin: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.boot-screen__bar {
+  width: min(260px, 70vw);
+  height: 6px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.boot-screen__bar-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #3d9eff, #7ec8ff);
+  transition: width 0.15s ease-out;
+}
+
+.boot-screen__pct {
+  margin: 0;
+  font-size: 12px;
+}
