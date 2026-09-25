@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     channel_chat_id: str = ""           # опционально: числовой id канала, если username не подходит
     author_username: str = ""           # напр. @IRFIX_Factor — личка автора для CTA на фронте
     author_telegram_id: str = ""        # числовой id автора — нужен, чтобы бот мог писать ему в личку
+    admin_telegram_ids: str = ""      # доп. админы через запятую
 
     # --- Данные ---
     database_url: str = f"sqlite:///{PROJECT_ROOT / 'data' / 'emoji_shop.db'}"
@@ -36,6 +37,18 @@ class Settings(BaseSettings):
     @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
+
+    def is_admin_id(self, telegram_id: int | str) -> bool:
+        tid = str(telegram_id).strip()
+        if not tid or tid == "0":
+            return False
+        allowed = set()
+        if self.author_telegram_id.strip():
+            allowed.add(self.author_telegram_id.strip())
+        for part in self.admin_telegram_ids.split(","):
+            if part.strip():
+                allowed.add(part.strip())
+        return tid in allowed
 
 
 @lru_cache

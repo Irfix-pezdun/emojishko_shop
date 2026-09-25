@@ -1,0 +1,92 @@
+.admin-packs {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 24px;
+}
+
+.admin-packs__hint {
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.admin-packs__row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.admin-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--surface-border, rgba(255,255,255,0.15));
+  background: rgba(0, 20, 60, 0.5);
+  color: var(--text, #fff);
+  font-size: 14px;
+}
+
+.admin-label {
+  display: block;
+  margin: 12px 0 6px;
+  font-size: 13px;
+  opacity: 0.85;
+}
+
+.admin-packs__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-pack-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid transparent;
+  background: rgba(0, 30, 80, 0.35);
+  color: inherit;
+  cursor: pointer;
+}
+
+.admin-pack-item.is-active {
+  border-color: rgba(61, 158, 255, 0.7);
+  box-shadow: 0 0 12px rgba(61, 158, 255, 0.25);
+}
+
+.admin-pack-item__title {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.admin-mini-tgs {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+
+.admin-emoji-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.admin-emoji-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(0, 20, 50, 0.4);
+  color: inherit;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.admin-ok { color: #6dffb0; font-size: 13px; }
+.admin-err { color: #ff7b7b; font-size: 13px; }

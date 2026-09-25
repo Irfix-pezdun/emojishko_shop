@@ -40,13 +40,22 @@ def _build_catalog() -> CatalogOut:
     if not packs_dir.exists():
         return CatalogOut(packs=[])
 
+    SKIP_IDS = {"pack-001", "pack_001", "first", "first-collection"}
+    SKIP_TITLES = {"первая коллекция", "first collection"}
+
     for pack_dir in sorted(p for p in packs_dir.iterdir() if p.is_dir()):
         tgs_files = sorted(pack_dir.glob("*.tgs"))
         if not tgs_files:
             continue  # пустые папки пропускаем
 
         meta = _load_pack_meta(pack_dir)
-        pack_id = meta.get("id", pack_dir.name)
+        pack_id = str(meta.get("id", pack_dir.name))
+        title = str(meta.get("title", pack_dir.name))
+        # старый демо-пак на 100 эмодзи — не показываем
+        if pack_id.lower() in SKIP_IDS or title.strip().lower() in SKIP_TITLES:
+            continue
+        if pack_dir.name.lower() in SKIP_IDS:
+            continue
 
         emoji = [
             EmojiOut(id=f.stem, url=f"/assets/packs/{pack_dir.name}/{f.name}")

@@ -83,3 +83,19 @@
 .pack-viewer__counter {
   text-align: center;
 }
+
+
+.pack-viewer__slide--anim {
+  animation: pack-emoji-in 0.28s ease both;
+}
+
+@keyframes pack-emoji-in {
+  from {
+    opacity: 0;
+    transform: scale(0.88) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}

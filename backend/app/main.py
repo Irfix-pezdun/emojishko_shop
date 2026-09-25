@@ -37,8 +37,9 @@ def health():
 
 @app.get("/api/config")
 def public_config():
-    """Публичные настройки, нужные фронту (username канала/автора) — чтобы не дублировать их в двух .env."""
+    """Публичные настройки для фронта. author_telegram_id — чтобы показать админку только автору."""
     return {
         "channel_username": settings.channel_username,
         "author_username": settings.author_username,
+        "author_telegram_id": str(settings.author_telegram_id or "").strip(),
     }

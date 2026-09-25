@@ -1,14 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useTgs } from "../../lib/tgs";
 import "./index.css";
 
-/** Обложка пака: один проигрыш, без бесконечного loop — иначе 20+ lottie = 5 FPS */
 function PackCover({ url }) {
   const ref = useTgs(url, { loop: false, autoplay: true });
   return <div className="pack-card__cover" ref={ref} />;
 }
 
-/** Только активный кадр монтирует lottie */
 function EmojiFrame({ url, active }) {
   const ref = useTgs(url, { loop: true, autoplay: active, active });
   return <div className="pack-viewer__emoji" ref={ref} />;
@@ -16,10 +14,12 @@ function EmojiFrame({ url, active }) {
 
 function PackViewer({ pack, onBack, onOrderSimilar }) {
   const [index, setIndex] = useState(0);
+  const [animKey, setAnimKey] = useState(0);
   const touchStartX = useRef(null);
 
   const go = (delta) => {
     setIndex((i) => (i + delta + pack.emoji.length) % pack.emoji.length);
+    setAnimKey((k) => k + 1);
   };
 
   const onTouchStart = (e) => {
@@ -48,8 +48,8 @@ function PackViewer({ pack, onBack, onOrderSimilar }) {
           ‹
         </button>
         {current && (
-          <div className="pack-viewer__slide">
-            <EmojiFrame key={current.id} url={current.url} active />
+          <div key={`${current.id}-${animKey}`} className="pack-viewer__slide pack-viewer__slide--anim">
+            <EmojiFrame url={current.url} active />
           </div>
         )}
         <button className="pack-viewer__nav pack-viewer__nav--next" onClick={() => go(1)} aria-label="Следующий">

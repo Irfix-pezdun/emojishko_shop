@@ -21,7 +21,7 @@ const BUTTONS = [
   },
 ];
 
-export default function HomeMenu({ onNavigate }) {
+export default function HomeMenu({ onNavigate, isAdmin }) {
   return (
     <div className="home">
       <div className="home__bg" aria-hidden="true" />
@@ -49,6 +49,15 @@ export default function HomeMenu({ onNavigate }) {
             <img src={btn.src} alt="" draggable={false} />
           </button>
         ))}
+        {isAdmin && (
+          <button
+            type="button"
+            className="home__admin-btn"
+            onClick={() => onNavigate("admin")}
+          >
+            ⚙️ Паки (админ)
+          </button>
+        )}
       </nav>
     </div>
   );
