@@ -7,6 +7,7 @@ import FreeEmojiOffer from "./components/FreeEmojiOffer";
 import OrderForm from "./components/OrderForm";
 import AdminPacks from "./components/AdminPacks";
 import PongGame from "./components/PongGame";
+import GameReward from "./components/GameReward";
 import { initTelegram, setBackButton, getTelegramUser } from "./telegram";
 import { getCatalog, getConfig } from "./api";
 import { preloadTgsMany, useTgs, preloadTgs } from "./lib/tgs";
@@ -191,13 +192,19 @@ export default function App() {
         <PongGame
           packs={packs}
           onClaimReward={() => {
-            setOrderPrefill(null);
             setStack((s) => {
-              // убрать games, открыть free-emoji
               const base = s.filter((x) => x !== "games");
-              return [...base, "free-emoji"];
+              return [...base, "game-reward"];
             });
           }}
+        />
+      )}
+
+      {screen === "game-reward" && (
+        <GameReward
+          channelUsername={config.channel_username}
+          authorUsername={config.author_username}
+          packs={packs}
         />
       )}
     </>

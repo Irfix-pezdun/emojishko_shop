@@ -1,0 +1,93 @@
+.game-reward {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 28px;
+}
+
+.game-reward__hero {
+  text-align: center;
+  padding: 8px 4px 4px;
+}
+
+.game-reward__hero h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+
+.game-reward__sub {
+  margin: 0;
+  color: #a8c8ef;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.game-reward__label {
+  font-size: 13px;
+  color: #9ec9ff;
+  margin-top: 4px;
+}
+
+.game-reward__input {
+  width: 100%;
+  border-radius: 12px;
+  border: 1px solid rgba(100, 180, 255, 0.3);
+  background: rgba(0, 30, 80, 0.45);
+  color: #e8f4ff;
+  padding: 10px 12px;
+  font-size: 15px;
+  resize: vertical;
+}
+
+.game-reward__refs {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.game-reward__ref {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: rgba(0, 40, 100, 0.4);
+  padding: 4px;
+  cursor: pointer;
+}
+
+.game-reward__ref.is-selected {
+  border-color: #5eb0ff;
+  box-shadow: 0 0 12px rgba(80, 160, 255, 0.4);
+}
+
+.game-reward__ref-anim {
+  width: 100%;
+  height: 100%;
+}
+
+.game-reward__error {
+  color: #ff8a9a;
+  margin: 0;
+  font-size: 13px;
+}
+
+.game-reward__note {
+  font-size: 12px;
+  margin: 0;
+}
+
+.game-reward__code {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px;
+  border-radius: 14px;
+  background: rgba(0, 50, 120, 0.45);
+  border: 1px solid rgba(100, 180, 255, 0.35);
+}
+
+.game-reward__code strong {
+  font-size: 22px;
+  letter-spacing: 0.08em;
+  color: #9ec9ff;
+}

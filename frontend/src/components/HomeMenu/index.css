@@ -180,3 +180,8 @@
     max-height: 60px;
   }
 }
+
+.home__btn--free img {
+  max-height: none;
+  width: 100%;
+}

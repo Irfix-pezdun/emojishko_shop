@@ -4,8 +4,8 @@ import "./index.css";
 
 const WIN_SCORE = 5;
 const BALL_R = 18;
-/** базовая скорость (доля от min(W,H) в секунду) */
-const BASE_SPEED = 0.72;
+/** slower base so player can react */
+const BASE_SPEED = 0.52;
 
 function BallSkin({ url }) {
   const ref = useTgs(url, { loop: true, autoplay: true, active: Boolean(url) });
@@ -47,7 +47,7 @@ export default function PongGame({ packs, onClaimReward }) {
       st.ball.x = W / 2;
       st.ball.y = H / 2;
       const speed = Math.min(W, H) * BASE_SPEED;
-      const angle = (Math.random() * 0.5 - 0.25) * Math.PI;
+      const angle = (Math.random() * 0.45 - 0.225) * Math.PI;
       const dir = toPlayer ? -1 : 1;
       st.ball.vx = Math.cos(angle) * speed * dir;
       st.ball.vy = Math.sin(angle) * speed;
@@ -58,12 +58,12 @@ export default function PongGame({ packs, onClaimReward }) {
 
   const initState = useCallback(
     (W, H) => {
-      const ph = Math.max(52, H * 0.2);
+      const ph = Math.max(56, H * 0.22);
       const st = {
         W,
         H,
         paddleH: ph,
-        paddleW: 11,
+        paddleW: 12,
         playerY: H / 2,
         botY: H / 2,
         ball: { x: W / 2, y: H / 2, vx: 0, vy: 0 },
@@ -85,10 +85,16 @@ export default function PongGame({ packs, onClaimReward }) {
     const wrap = wrapRef.current;
     if (!canvas || !wrap) return;
     const rect = wrap.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = Math.max(280, Math.floor(rect.width));
     const H = Math.floor(Math.min(W * 0.75, 440));
-    canvas.width = W;
-    canvas.height = H;
+    canvas.width = Math.floor(W * dpr);
+    canvas.height = Math.floor(H * dpr);
+    canvas.style.width = `${W}px`;
+    canvas.style.height = `${H}px`;
+    const ctx = canvas.getContext("2d");
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = false;
     initState(W, H);
     setRunning(true);
   };
@@ -138,13 +144,14 @@ export default function PongGame({ packs, onClaimReward }) {
 
       const { W, H, paddleH, paddleW } = st;
 
-      st.playerY += (st.targetPlayerY - st.playerY) * Math.min(1, dt * 16);
+      st.playerY += (st.targetPlayerY - st.playerY) * Math.min(1, dt * 18);
       st.playerY = Math.max(paddleH / 2, Math.min(H - paddleH / 2, st.playerY));
 
-      const reaction = 3.4;
-      const error = Math.sin(ts / 380) * (paddleH * 0.14);
+      // easier bot: slow reaction + big lag + misses more when ball is fast
+      const reaction = 1.6;
+      const error = Math.sin(ts / 280) * (paddleH * 0.28) + (Math.random() - 0.5) * 8;
       const botTarget = st.ball.y + error;
-      const towardBot = st.ball.vx > 0 ? 1 : 0.32;
+      const towardBot = st.ball.vx > 0 ? 0.85 : 0.2;
       st.botY += (botTarget - st.botY) * Math.min(1, dt * reaction * towardBot);
       st.botY = Math.max(paddleH / 2, Math.min(H - paddleH / 2, st.botY));
 
@@ -173,8 +180,8 @@ export default function PongGame({ packs, onClaimReward }) {
         if (hitPaddle(paddleW / 2 + 6, st.playerY)) {
           st.ball.x = paddleW + BALL_R + 8;
           const rel = (st.ball.y - st.playerY) / (paddleH / 2);
-          const speed = Math.hypot(st.ball.vx, st.ball.vy) * 1.05;
-          const ang = rel * 0.55;
+          const speed = Math.min(Math.hypot(st.ball.vx, st.ball.vy) * 1.04, Math.min(W, H) * 0.85);
+          const ang = rel * 0.5;
           st.ball.vx = Math.abs(Math.cos(ang) * speed);
           st.ball.vy = Math.sin(ang) * speed;
         } else if (st.ball.x < -BALL_R) {
@@ -193,8 +200,8 @@ export default function PongGame({ packs, onClaimReward }) {
         if (hitPaddle(W - paddleW / 2 - 6, st.botY)) {
           st.ball.x = W - paddleW - BALL_R - 8;
           const rel = (st.ball.y - st.botY) / (paddleH / 2);
-          const speed = Math.hypot(st.ball.vx, st.ball.vy) * 1.05;
-          const ang = rel * 0.55;
+          const speed = Math.min(Math.hypot(st.ball.vx, st.ball.vy) * 1.04, Math.min(W, H) * 0.85);
+          const ang = rel * 0.5;
           st.ball.vx = -Math.abs(Math.cos(ang) * speed);
           st.ball.vy = Math.sin(ang) * speed;
         } else if (st.ball.x > W + BALL_R) {
@@ -209,7 +216,6 @@ export default function PongGame({ packs, onClaimReward }) {
         }
       }
 
-      // позиция эмодзи = центр мяча в CSS-пикселях canvas (без setState → без лага)
       const layer = ballLayerRef.current;
       if (layer) {
         const sx = canvas.clientWidth / W;
@@ -221,28 +227,34 @@ export default function PongGame({ packs, onClaimReward }) {
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = "#020b2e";
       ctx.fillRect(0, 0, W, H);
-      ctx.strokeStyle = "rgba(100,180,255,0.35)";
+      ctx.strokeStyle = "rgba(100,180,255,0.4)";
       ctx.lineWidth = 2;
       ctx.strokeRect(2, 2, W - 4, H - 4);
       ctx.setLineDash([6, 10]);
       ctx.beginPath();
       ctx.moveTo(W / 2, 8);
       ctx.lineTo(W / 2, H - 8);
-      ctx.strokeStyle = "rgba(150,200,255,0.25)";
+      ctx.strokeStyle = "rgba(150,200,255,0.3)";
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.font = "bold 28px monospace";
-      ctx.fillStyle = "rgba(200,230,255,0.85)";
+
+      // crisp score
+      ctx.imageSmoothingEnabled = false;
+      ctx.font = "700 36px ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+      ctx.fillStyle = "#e8f4ff";
       ctx.textAlign = "center";
-      ctx.fillText(String(st.playerScore), W * 0.25, 36);
-      ctx.fillText(String(st.botScore), W * 0.75, 36);
+      ctx.textBaseline = "top";
+      ctx.shadowColor = "transparent";
+      ctx.shadowBlur = 0;
+      ctx.fillText(String(st.playerScore), W * 0.25, 14);
+      ctx.fillText(String(st.botScore), W * 0.75, 14);
+
       ctx.fillStyle = "#7ec8ff";
-      ctx.shadowColor = "rgba(80,160,255,0.6)";
-      ctx.shadowBlur = 12;
+      ctx.shadowColor = "rgba(80,160,255,0.55)";
+      ctx.shadowBlur = 10;
       ctx.fillRect(6, st.playerY - paddleH / 2, paddleW, paddleH);
       ctx.fillRect(W - paddleW - 6, st.botY - paddleH / 2, paddleW, paddleH);
       ctx.shadowBlur = 0;
-      // без круга мяча на canvas — только эмодзи-оверлей
 
       rafRef.current = requestAnimationFrame(loop);
     };
@@ -266,21 +278,21 @@ export default function PongGame({ packs, onClaimReward }) {
           </div>
         )}
         {!running && !over && (
-          <div className="pong__overlay">
-            <button type="button" className="btn btn-primary" onClick={startGame}>
+          <div className="pong__overlay pong__overlay--plain">
+            <button type="button" className="btn btn-primary pong__play-btn" onClick={startGame}>
               Играть
             </button>
           </div>
         )}
         {over && (
-          <div className="pong__overlay">
+          <div className="pong__overlay pong__overlay--plain">
             <p className="pong__result">{over === "win" ? "Победа! 🎉" : "Поражение"}</p>
             <p className="muted">
               {score.player} : {score.bot}
             </p>
             {over === "win" && (
               <button type="button" className="btn btn-primary" onClick={() => onClaimReward?.()}>
-                Забрать эмодзи
+                Забрать награду
               </button>
             )}
             <button type="button" className="btn btn-ghost" onClick={startGame}>
