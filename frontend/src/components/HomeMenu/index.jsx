@@ -19,6 +19,12 @@ const BUTTONS = [
     label: "О дизайнере",
     screen: "about",
   },
+  {
+    id: "games",
+    src: "/btn-games.svg",
+    label: "Игры — Pong",
+    screen: "games",
+  },
 ];
 
 export default function HomeMenu({ onNavigate, isAdmin }) {
@@ -41,7 +47,7 @@ export default function HomeMenu({ onNavigate, isAdmin }) {
           <button
             key={btn.id}
             type="button"
-            className="home__btn"
+            className={`home__btn${btn.id === "games" ? " home__btn--compact" : ""}`}
             style={{ animationDelay: `${0.12 + i * 0.1}s` }}
             aria-label={btn.label}
             onClick={() => onNavigate(btn.screen)}

@@ -165,3 +165,18 @@
   font-size: 14px;
   cursor: pointer;
 }
+
+/* Игры — чуть компактнее Info, ниже по списку */
+.home__btn--compact {
+  max-width: 92%;
+  margin-top: 2px;
+}
+.home__btn--compact img {
+  max-height: 72px;
+  width: auto;
+}
+@media (max-height: 700px) {
+  .home__btn--compact img {
+    max-height: 60px;
+  }
+}

@@ -1,0 +1,73 @@
+.pong {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+.pong__hint {
+  font-size: 13px;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.pong__stage {
+  position: relative;
+  width: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(100, 180, 255, 0.25);
+  background: #020b2e;
+  touch-action: none;
+  min-height: 280px;
+}
+
+.pong__canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+  touch-action: none;
+}
+
+.pong__ball-layer {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.pong__ball-skin {
+  width: 40px;
+  height: 40px;
+}
+
+.pong__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: rgba(2, 11, 46, 0.72);
+  z-index: 3;
+  padding: 16px;
+}
+
+.pong__result {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 700;
+  color: #e8f4ff;
+}
+
+.btn-ghost {
+  background: transparent;
+  border: 1px solid rgba(100, 180, 255, 0.4);
+  color: #cfe8ff;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+}
