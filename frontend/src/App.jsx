@@ -8,13 +8,15 @@ import OrderForm from "./components/OrderForm";
 import AdminPacks from "./components/AdminPacks";
 import { initTelegram, setBackButton, getTelegramUser } from "./telegram";
 import { getCatalog, getConfig } from "./api";
-import { preloadTgsMany } from "./lib/tgs";
+import { preloadTgsMany, useTgs, preloadTgs } from "./lib/tgs";
 
-function BootScreen({ progress, label }) {
+function BootScreen({ progress, label, emojiUrl }) {
   const pct = Math.round((progress || 0) * 100);
+  const ref = useTgs(emojiUrl, { loop: true, autoplay: true, active: Boolean(emojiUrl) });
   return (
     <div className="boot-screen">
-      <div className="boot-screen__logo">IRFIX</div>
+      <div className="boot-screen__emoji" ref={ref} />
+      {!emojiUrl && <div className="boot-screen__logo">IRFIX</div>}
       <p className="boot-screen__label">{label || "Готовим эмодзи…"}</p>
       <div className="boot-screen__bar">
         <div className="boot-screen__bar-fill" style={{ width: `${pct}%` }} />
@@ -22,6 +24,18 @@ function BootScreen({ progress, label }) {
       <p className="boot-screen__pct muted">{pct}%</p>
     </div>
   );
+}
+
+function pickIrfixBootEmoji(packs) {
+  const irfix = (packs || []).find(
+    (p) =>
+      (p.id || "").toLowerCase().includes("irfix") ||
+      (p.title || "").toLowerCase().includes("irfix") ||
+      (p.tags || []).includes("free-ref")
+  );
+  if (!irfix) return null;
+  // обложка пака, иначе первый эмодзи
+  return irfix.cover_url || irfix.emoji?.[0]?.url || null;
 }
 
 /** Приоритет: обложки всех паков + весь IRFIX (FREE-референсы) */
@@ -54,6 +68,7 @@ export default function App() {
   const [booting, setBooting] = useState(true);
   const [bootProgress, setBootProgress] = useState(0);
   const [bootLabel, setBootLabel] = useState("Загрузка каталога…");
+  const [bootEmojiUrl, setBootEmojiUrl] = useState(null);
 
   const screen = stack[stack.length - 1];
 
@@ -80,6 +95,13 @@ export default function App() {
         const nextPacks = catalog.packs || [];
         setPacks(nextPacks);
         setConfig((c) => ({ ...c, ...cfg }));
+
+        const bootEmoji = pickIrfixBootEmoji(nextPacks);
+        if (bootEmoji) {
+          setBootEmojiUrl(bootEmoji);
+          // сначала эта эмодзи — чтобы сразу крутилась на сплэше
+          await preloadTgs(bootEmoji);
+        }
 
         const priority = collectPriorityUrls(nextPacks);
         setBootLabel(
@@ -126,7 +148,7 @@ export default function App() {
   );
 
   if (booting) {
-    return <BootScreen progress={bootProgress} label={bootLabel} />;
+    return <BootScreen progress={bootProgress} label={bootLabel} emojiUrl={bootEmojiUrl} />;
   }
 
   return (
