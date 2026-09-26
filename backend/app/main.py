@@ -5,7 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from .config import get_settings
 from .db import ensure_schema
 from . import models  # noqa: F401 — регистрирует модели перед create_all
-from .routers import catalog, free_emoji, orders, admin
+from .routers import catalog, free_emoji, orders, admin, bot_users
 
 settings = get_settings()
 
@@ -28,6 +28,7 @@ app.include_router(catalog.router)
 app.include_router(free_emoji.router)
 app.include_router(orders.router)
 app.include_router(admin.router)
+app.include_router(bot_users.router)
 
 
 @app.get("/api/health")

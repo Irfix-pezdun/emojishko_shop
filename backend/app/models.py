@@ -44,3 +44,14 @@ class PackMeta(Base):
     title = Column(String, nullable=True)
     cover = Column(String, nullable=True)  # e001.tgs
     sort_order = Column(Integer, nullable=True, default=999)
+
+
+class BotUser(Base):
+    """Кто хотя бы раз нажал /start — база для рассылок /ras."""
+    __tablename__ = "bot_users"
+
+    telegram_user_id = Column(String, primary_key=True)
+    telegram_username = Column(String, nullable=True)
+    first_name = Column(String, nullable=True)
+    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))

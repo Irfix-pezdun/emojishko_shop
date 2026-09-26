@@ -10,6 +10,7 @@
 
 Заявки читаются через HTTP /api/admin/leads (Bearer BOT_TOKEN), а не через sys.path.
 """
+import asyncio
 import json
 import re
 from pathlib import Path
@@ -20,6 +21,7 @@ from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.types import Message
+from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter, TelegramAPIError
 
 from config import get_settings
 
@@ -256,3 +258,101 @@ async def list_leads(message: Message):
         extra = f" — {desc}" if desc else ""
         lines.append(f"{ts} — {code} — {lead.get('type')} — {who}{extra}")
     await message.answer("\n".join(lines))
+
+
+@router.message(Command("ras"))
+async def broadcast(message: Message, bot: Bot):
+    """Рассылка всем, кто писал боту.
+    Пример: /ras В канале сейчас розыгрыш! Залетай.
+    Только админ.
+    """
+    if not _is_admin(message.from_user.id):
+        return
+
+    text = (message.text or "")
+    # убрать команду: /ras или /ras@botname
+    parts = text.split(maxsplit=1)
+    body = parts[1].strip() if len(parts) > 1 else ""
+    if not body:
+        await message.answer(
+            "Как пользоваться:\n"
+            "<code>/ras Текст рассылки</code>\n\n"
+            "Пример:\n"
+            "<code>/ras В канале сейчас розыгрыш! Залетай 🔥</code>\n\n"
+            "Сообщение уйдёт всем, кто хотя бы раз нажал /start в боте."
+        )
+        return
+
+    status = await message.answer("Собираю список пользователей…")
+
+    ids: list[str] = []
+    try:
+        resp = await _api("GET", "/api/bot-users/ids")
+        if resp.status_code == 200:
+            data = resp.json()
+            ids = [str(x) for x in (data.get("ids") or [])]
+    except Exception as e:
+        await status.edit_text(f"Не удалось получить список: {e}")
+        return
+
+    if not ids:
+        await status.edit_text(
+            "Пока нет ни одного пользователя.\n"
+            "Как только кто-то нажмёт /start — он попадёт в базу рассылки."
+        )
+        return
+
+    await status.edit_text(f"Рассылка на {len(ids)} чел…\nТекст:\n{body}")
+
+    ok = 0
+    fail = 0
+    blocked = 0
+    for i, uid in enumerate(ids):
+        try:
+            await bot.send_message(int(uid), body)
+            ok += 1
+        except TelegramForbiddenError:
+            blocked += 1
+            fail += 1
+        except TelegramRetryAfter as e:
+            await asyncio.sleep(float(e.retry_after) + 0.5)
+            try:
+                await bot.send_message(int(uid), body)
+                ok += 1
+            except Exception:
+                fail += 1
+        except (TelegramAPIError, Exception):
+            fail += 1
+        # ~20 msg/sec — безопасный лимит
+        await asyncio.sleep(0.05)
+        if (i + 1) % 50 == 0:
+            try:
+                await status.edit_text(
+                    f"Рассылка… {i + 1}/{len(ids)}\n✅ {ok} · ❌ {fail} (блок {blocked})"
+                )
+            except Exception:
+                pass
+
+    await status.edit_text(
+        f"Готово!\n"
+        f"Всего: {len(ids)}\n"
+        f"✅ Доставлено: {ok}\n"
+        f"❌ Не доставлено: {fail}\n"
+        f"🚫 Заблокировали бота: {blocked}"
+    )
+
+
+@router.message(Command("users"))
+async def count_users(message: Message):
+    """Сколько человек в базе рассылки."""
+    if not _is_admin(message.from_user.id):
+        return
+    try:
+        resp = await _api("GET", "/api/bot-users/ids")
+        if resp.status_code == 200:
+            data = resp.json()
+            await message.answer(f"В базе рассылки: <b>{data.get('count', 0)}</b> чел.")
+        else:
+            await message.answer(f"Ошибка API: {resp.status_code}")
+    except Exception as e:
+        await message.answer(f"Ошибка: {e}")
