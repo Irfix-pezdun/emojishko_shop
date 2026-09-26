@@ -47,7 +47,7 @@ export default function HomeMenu({ onNavigate, isAdmin }) {
           <button
             key={btn.id}
             type="button"
-            className={`home__btn${btn.id === "games" ? " home__btn--compact" : ""}`}
+            className="home__btn"
             style={{ animationDelay: `${0.12 + i * 0.1}s` }}
             aria-label={btn.label}
             onClick={() => onNavigate(btn.screen)}
