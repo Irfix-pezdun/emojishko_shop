@@ -1,3 +1,4 @@
+
 .pong {
   display: flex;
   flex-direction: column;
@@ -16,10 +17,17 @@
   width: 100%;
   border-radius: 16px;
   overflow: hidden;
-  border: 1px solid rgba(100, 180, 255, 0.25);
-  background: #020b2e;
   touch-action: none;
   line-height: 0;
+  background: transparent;
+  border: none;
+  min-height: 0;
+}
+
+/* поле видно только во время игры / после матча */
+.pong__stage.is-active {
+  background: #020b2e;
+  border: 1px solid rgba(100, 180, 255, 0.25);
   min-height: 220px;
 }
 
@@ -29,6 +37,10 @@
   height: auto;
   touch-action: none;
   vertical-align: top;
+}
+
+.pong__canvas.is-hidden {
+  display: none;
 }
 
 .pong__ball-layer {
@@ -62,27 +74,28 @@
   display: block;
 }
 
-/* без тёмного прямоугольника — только кнопка по центру */
 .pong__overlay {
-  position: absolute;
-  inset: 0;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
   z-index: 3;
-  padding: 16px;
+  padding: 24px 16px;
   line-height: normal;
   background: transparent;
+  min-height: 120px;
 }
 
-.pong__overlay--plain {
+.pong__stage.is-active .pong__overlay {
+  position: absolute;
+  inset: 0;
   background: transparent;
 }
 
 .pong__play-btn {
-  min-width: 200px;
+  min-width: 220px;
   box-shadow: 0 8px 28px rgba(30, 100, 220, 0.45);
 }
 

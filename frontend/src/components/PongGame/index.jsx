@@ -270,8 +270,8 @@ export default function PongGame({ packs, onClaimReward }) {
         До {WIN_SCORE} очков · пальцем двигай левую ракетку · каждый розыгрыш — новый эмодзи IRFIX
       </p>
 
-      <div className="pong__stage" ref={wrapRef}>
-        <canvas ref={canvasRef} className="pong__canvas" />
+      <div className={`pong__stage${running || over ? " is-active" : ""}`} ref={wrapRef}>
+        <canvas ref={canvasRef} className={`pong__canvas${running || over ? "" : " is-hidden"}`} />
         {running && (
           <div className="pong__ball-layer" ref={ballLayerRef}>
             {ballUrl ? <BallSkin url={ballUrl} /> : null}
