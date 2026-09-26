@@ -51,7 +51,8 @@ export const getCatalog = async () => {
 };
 
 export const getConfig = () => request("/api/config");
-export const getStatus = () => request("/api/free-emoji/status");
+export const getStatus = (source = "free") =>
+  request(`/api/free-emoji/status?source=${encodeURIComponent(source || "free")}`);
 
 /** @param {{ description: string, nick?: string, logo?: string, colors?: string, reference_emoji?: string, reference_pack?: string }} payload */
 export const claimFreeEmoji = (payload) =>

@@ -31,10 +31,11 @@ class FreeEmojiClaimIn(BaseModel):
     colors: Optional[str] = Field(None, max_length=200)  # «синий и белый» / #hex
     reference_emoji: Optional[str] = Field(None, max_length=64)
     reference_pack: Optional[str] = Field(None, max_length=64)
+    source: Optional[str] = Field(None, max_length=16)  # free | pong
 
 
 class FreeEmojiClaimOut(BaseModel):
-    status: str  # subscribe_required | claimed | already_claimed | not_claimed
+    status: str  # subscribe_required | claimed | already_claimed | not_claimed | daily_limit
     chat_url: Optional[str] = None
     code: Optional[str] = None
     description: Optional[str] = None

@@ -46,10 +46,10 @@ export default function GameReward({ channelUsername, authorUsername, packs = []
   }, [packs]);
 
   useEffect(() => {
-    getStatus()
+    getStatus("pong")
       .then((res) => {
-        if (res.status === "already_claimed") {
-          setState("already_claimed");
+        if (res.status === "daily_limit" || res.status === "already_claimed") {
+          setState("daily_limit");
           setCode(res.code || null);
         } else {
           setState("form");
@@ -77,14 +77,17 @@ export default function GameReward({ channelUsername, authorUsername, packs = []
         logo: logo.trim() || null,
         colors: colors.trim() || null,
         reference_emoji: refEmoji?.emojiId || null,
+        source: "pong",
       });
       if (res.status === "claimed") {
         setCode(res.code || null);
         setState("claimed");
         haptic?.("success");
-      } else if (res.status === "already_claimed") {
+      } else if (res.status === "daily_limit" || res.status === "already_claimed") {
         setCode(res.code || null);
-        setState("already_claimed");
+        setState("daily_limit");
+      } else if (res.status === "subscribe_required") {
+        setError("Сначала подпишись на канал.");
       } else {
         setError("Не удалось оформить награду. Попробуй ещё раз.");
       }
@@ -103,15 +106,24 @@ export default function GameReward({ channelUsername, authorUsername, packs = []
     );
   }
 
-  if (state === "claimed" || state === "already_claimed") {
+  if (state === "claimed" || state === "already_claimed" || state === "daily_limit") {
     const isNew = state === "claimed";
+    const isDaily = state === "daily_limit";
     return (
       <div className="screen game-reward">
-        <h2>{isNew ? "🎉 Награда оформлена!" : "Уже забирал эмодзи"}</h2>
+        <h2>
+          {isNew
+            ? "🎉 Награда оформлена!"
+            : isDaily
+              ? "Награда уже получена сегодня"
+              : "Уже забирал эмодзи"}
+        </h2>
         <p className="muted">
           {isNew
             ? "Напиши автору и отправь код — так он поймёт, что ты победил в Pong."
-            : "Ранее уже была заявка. Напиши автору с кодом ниже."}
+            : isDaily
+              ? "Pong-награду можно забрать 1 раз в сутки. Приходи завтра или сыграй просто так!"
+              : "Ранее уже была заявка. Напиши автору с кодом ниже."}
         </p>
         {code && (
           <div className="game-reward__code">

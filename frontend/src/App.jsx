@@ -108,7 +108,7 @@ export default function App() {
         const priority = collectPriorityUrls(nextPacks);
         setBootLabel(
           priority.length
-            ? `Кэшируем эмодзи (${priority.length})…`
+            ? `Кэш для магазина и игры (${priority.length})…`
             : "Почти готово…"
         );
         await preloadTgsMany(priority, {

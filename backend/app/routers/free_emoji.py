@@ -1,3 +1,5 @@
+from datetime import datetime, timezone, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
@@ -19,12 +21,51 @@ def _chat_url() -> str | None:
     return f"https://t.me/{settings.author_username.lstrip('@')}"
 
 
-def _existing_claim(db: Session, user_id: int) -> Lead | None:
-    return (
+def _payload_desc(lead: Lead) -> str | None:
+    if not lead.payload:
+        return None
+    return lead.payload.get("description")
+
+
+def _is_pong(lead: Lead) -> bool:
+    if not lead.payload:
+        return False
+    return (lead.payload.get("source") or "").lower() == "pong"
+
+
+def _existing_free_claim(db: Session, user_id: int) -> Lead | None:
+    """Обычный FREE — один раз за всё время (не pong)."""
+    rows = (
         db.query(Lead)
         .filter(Lead.telegram_user_id == str(user_id), Lead.type == LeadType.free_trial)
-        .first()
+        .all()
     )
+    for r in rows:
+        if not _is_pong(r):
+            return r
+    return None
+
+
+def _last_pong_claim(db: Session, user_id: int) -> Lead | None:
+    rows = (
+        db.query(Lead)
+        .filter(Lead.telegram_user_id == str(user_id), Lead.type == LeadType.free_trial)
+        .order_by(Lead.created_at.desc())
+        .all()
+    )
+    for r in rows:
+        if _is_pong(r):
+            return r
+    return None
+
+
+def _pong_within_day(lead: Lead) -> bool:
+    if not lead or not lead.created_at:
+        return False
+    created = lead.created_at
+    if created.tzinfo is None:
+        created = created.replace(tzinfo=timezone.utc)
+    return datetime.now(timezone.utc) - created < timedelta(hours=24)
 
 
 def _unique_code(db: Session) -> str:
@@ -33,19 +74,28 @@ def _unique_code(db: Session) -> str:
         exists = db.query(Lead).filter(Lead.code == code).first()
         if not exists:
             return code
-    # крайне маловероятно
     return generate_claim_code() + generate_claim_code()[-2:]
 
 
-def _payload_desc(lead: Lead) -> str | None:
-    if not lead.payload or not isinstance(lead.payload, dict):
-        return None
-    return lead.payload.get("description")
-
-
 @router.get("/status", response_model=FreeEmojiClaimOut)
-def free_emoji_status(user: TelegramUser = Depends(require_telegram_user), db: Session = Depends(get_db)):
-    existing = _existing_claim(db, user.id)
+def free_emoji_status(
+    user: TelegramUser = Depends(require_telegram_user),
+    db: Session = Depends(get_db),
+    source: str | None = None,
+):
+    src = (source or "free").lower()
+    if src == "pong":
+        last = _last_pong_claim(db, user.id)
+        if last and _pong_within_day(last):
+            return FreeEmojiClaimOut(
+                status="daily_limit",
+                chat_url=_chat_url(),
+                code=last.code,
+                description=_payload_desc(last),
+            )
+        return FreeEmojiClaimOut(status="not_claimed")
+
+    existing = _existing_free_claim(db, user.id)
     if existing:
         return FreeEmojiClaimOut(
             status="already_claimed",
@@ -62,14 +112,28 @@ async def claim_free_emoji(
     user: TelegramUser = Depends(require_telegram_user),
     db: Session = Depends(get_db),
 ):
-    existing = _existing_claim(db, user.id)
-    if existing:
-        return FreeEmojiClaimOut(
-            status="already_claimed",
-            chat_url=_chat_url(),
-            code=existing.code,
-            description=_payload_desc(existing),
-        )
+    src = (body.source or "free").lower()
+    if src not in ("free", "pong"):
+        src = "free"
+
+    if src == "pong":
+        last = _last_pong_claim(db, user.id)
+        if last and _pong_within_day(last):
+            return FreeEmojiClaimOut(
+                status="daily_limit",
+                chat_url=_chat_url(),
+                code=last.code,
+                description=_payload_desc(last),
+            )
+    else:
+        existing = _existing_free_claim(db, user.id)
+        if existing:
+            return FreeEmojiClaimOut(
+                status="already_claimed",
+                chat_url=_chat_url(),
+                code=existing.code,
+                description=_payload_desc(existing),
+            )
 
     try:
         subscribed = await is_subscribed(user.id)
@@ -90,6 +154,7 @@ async def claim_free_emoji(
         "colors": colors,
         "reference_emoji": body.reference_emoji,
         "reference_pack": body.reference_pack,
+        "source": src,
     }
 
     lead = Lead(
@@ -115,8 +180,9 @@ async def claim_free_emoji(
         pack = body.reference_pack or "—"
         extra += f"\nРеференс: <code>{pack}/{body.reference_emoji}</code>"
 
+    title = "Победа в Pong" if src == "pong" else "Бесплатный эмодзи"
     text = (
-        f"🎁 <b>Бесплатный эмодзи</b>\n"
+        f"<b>{title}</b>\n"
         f"Код: <code>{code}</code>\n"
         f"Кто: {who}\n"
         f"ID: <code>{user.id}</code>\n"
@@ -128,4 +194,9 @@ async def claim_free_emoji(
     except Exception:
         pass
 
-    return FreeEmojiClaimOut(status="claimed", chat_url=_chat_url(), code=code, description=body.description.strip())
+    return FreeEmojiClaimOut(
+        status="claimed",
+        chat_url=_chat_url(),
+        code=code,
+        description=body.description.strip(),
+    )

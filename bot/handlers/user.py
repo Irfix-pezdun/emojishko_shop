@@ -19,12 +19,15 @@ async def start(message: Message):
 
     kb = InlineKeyboardMarkup(
         inline_keyboard=[
-            [InlineKeyboardButton(text="✨ Открыть магазин эмодзи", web_app=WebAppInfo(url=settings.webapp_url))]
+            [InlineKeyboardButton(
+                text="Открыть магазин эмодзи",
+                web_app=WebAppInfo(url=settings.webapp_url),
+            )]
         ]
     )
     await message.answer(
         "Привет! Здесь можно посмотреть примеры моих эмодзи-паков, "
-        "узнать обо мне и получить один бесплатный кастомный эмодзи 🎁",
+        "узнать обо мне, сыграть в Pong и получить кастомный эмодзи.",
         reply_markup=kb,
     )
 
