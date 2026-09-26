@@ -1,0 +1,127 @@
+{
+  "irfix-design": {
+    "title": "IRFIX Design",
+    "cover": "e001.tgs",
+    "sort_order": 1
+  },
+  "blagoy-directory": {
+    "title": "Blagoy Directory",
+    "cover": "e020.tgs",
+    "sort_order": 2
+  },
+  "aproqron": {
+    "title": "Aproqron",
+    "cover": "e007.tgs",
+    "sort_order": 3
+  },
+  "eifa-store-emojis": {
+    "title": "EIFA Store",
+    "cover": "e019.tgs",
+    "sort_order": 4
+  },
+  "eifa-store-emojis-v2": {
+    "title": "EIFA Store V2",
+    "cover": "e004.tgs",
+    "sort_order": 5
+  },
+  "chrome-gifts-emoji": {
+    "title": "Chrome Gifts",
+    "cover": "e010.tgs",
+    "sort_order": 6
+  },
+  "corry": {
+    "title": "Corry",
+    "cover": "e001.tgs",
+    "sort_order": 7
+  },
+  "distany-pack": {
+    "title": "Distany",
+    "cover": "e001.tgs",
+    "sort_order": 8
+  },
+  "eifavpn": {
+    "title": "EIFA VPN",
+    "cover": "e001.tgs",
+    "sort_order": 9
+  },
+  "hofau": {
+    "title": "Hofau",
+    "cover": "e007.tgs",
+    "sort_order": 10
+  },
+  "rdm-team": {
+    "title": "RDM Team",
+    "cover": "e005.tgs",
+    "sort_order": 11
+  },
+  "happysale": {
+    "title": "Happy Sale",
+    "cover": "e001.tgs",
+    "sort_order": 12
+  },
+  "mrhappy": {
+    "title": "Mr Happy",
+    "cover": "e003.tgs",
+    "sort_order": 13
+  },
+  "sahapeks": {
+    "title": "Sahapeks",
+    "cover": "e001.tgs",
+    "sort_order": 14
+  },
+  "nfton": {
+    "title": "NFTon",
+    "cover": "e004.tgs",
+    "sort_order": 15
+  },
+  "parmenpn": {
+    "title": "Parmen",
+    "cover": "e001.tgs",
+    "sort_order": 16
+  },
+  "elay-eifastore": {
+    "title": "Элай EIFA",
+    "cover": "e001.tgs",
+    "sort_order": 17
+  },
+  "smsn": {
+    "title": "SMSN",
+    "cover": "e001.tgs",
+    "sort_order": 18
+  },
+  "toxic-valudator": {
+    "title": "Toxic Validator",
+    "cover": "e001.tgs",
+    "sort_order": 19
+  },
+  "wonky": {
+    "title": "Wonky",
+    "cover": "e001.tgs",
+    "sort_order": 20
+  },
+  "yar4ezz": {
+    "title": "Yar4ezz",
+    "cover": "e003.tgs",
+    "sort_order": 21
+  },
+  "aproshka": {
+    "title": "Апрошка",
+    "cover": "e001.tgs",
+    "sort_order": 22
+  },
+  "goroshek-vpn": {
+    "title": "Горошек VPN",
+    "cover": "e004.tgs",
+    "sort_order": 23
+  },
+  "zvezdy-ot-said": {
+    "title": "Звёзды от Саид",
+    "cover": "e001.tgs",
+    "sort_order": 24
+  },
+  "perets-vpn": {
+    "title": "Перец VPN",
+    "cover": "e001.tgs",
+    "sort_order": 25
+  }
+}
