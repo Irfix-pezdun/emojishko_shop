@@ -1,22 +1,23 @@
 #!/usr/bin/env bash
-# Запуск API + бота на одном сервере (Render и т.п.)
 set -e
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 cd "$ROOT"
 
 PORT="${PORT:-8000}"
+PYTHON="${PYTHON:-python3}"
+command -v python3 >/dev/null 2>&1 || PYTHON=python
 
 echo "Starting API on port $PORT..."
 (
   cd backend
-  uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
+  $PYTHON -m uvicorn app.main:app --host 0.0.0.0 --port "$PORT"
 ) &
 API_PID=$!
 
 echo "Starting bot..."
 (
   cd bot
-  python bot.py
+  $PYTHON bot.py
 ) &
 BOT_PID=$!
 
@@ -25,7 +26,6 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-# Если упал один процесс — гасим оба
 wait -n $API_PID $BOT_PID
 cleanup
 exit 1
