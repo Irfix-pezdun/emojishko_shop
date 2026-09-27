@@ -2,5 +2,5 @@
 builder = "NIXPACKS"
 
 [deploy]
-startCommand = "bash start.sh"
+startCommand = "bash -lc '. /opt/venv/bin/activate && bash start.sh'"
 restartPolicyType = "ON_FAILURE"
