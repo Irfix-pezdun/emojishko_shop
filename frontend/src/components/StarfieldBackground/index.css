@@ -23,7 +23,7 @@
   animation-name: starfield-twinkle;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  filter: drop-shadow(0 0 10px rgba(255, 180, 140, 0.35)) drop-shadow(0 0 22px rgba(138, 168, 255, 0.18));
+  filter: none;
 }
 
 .starfield__emoji {

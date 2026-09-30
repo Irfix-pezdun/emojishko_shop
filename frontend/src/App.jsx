@@ -156,7 +156,7 @@ export default function App() {
   return (
     <>
       {screen !== "home" && (
-        <StarfieldBackground emojiUrls={backgroundEmojiUrls} density={0.5} />
+        <StarfieldBackground emojiUrls={[]} density={0.35} />
       )}
 
       {screen === "home" && <HomeMenu onNavigate={push} isAdmin={isAdmin} />}
