@@ -118,7 +118,7 @@ export default function HomeMenu({ onNavigate, isAdmin }) {
       <main className="ir-home__main">
         <header className="ir-home__header">
           <div className="ir-home__brand">
-            <span className="ir-home__logo-text">IRFIX</span>
+            <span className="ir-home__logo-text">IRFIX EMOJI</span>
             <span className="ir-home__logo-dot" aria-hidden="true" />
           </div>
           <p className="ir-home__tagline">Анимированные эмодзи для Telegram</p>
@@ -226,10 +226,10 @@ export default function HomeMenu({ onNavigate, isAdmin }) {
         <button
           type="button"
           className="ir-nav__item"
-          onClick={() => onNavigate("about")}
+          onClick={() => onNavigate("my-orders")}
         >
           <Icon name="user" />
-          <span>Профиль</span>
+          <span>Мои заказы</span>
         </button>
       </nav>
     </div>

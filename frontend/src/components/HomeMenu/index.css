@@ -1,3 +1,12 @@
+@keyframes ir-home-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ir-home {
+  animation: ir-home-enter 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 .ir-home {
   position: relative;
   z-index: 1;
@@ -41,8 +50,8 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #2a4bff;
-  box-shadow: 0 0 10px rgba(42, 75, 255, 0.8);
+  background: #3d9eff;
+  box-shadow: 0 0 10px rgba(61, 158, 255, 0.8);
 }
 
 .ir-home__tagline {
@@ -60,8 +69,8 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: linear-gradient(140deg, #3a5bff 0%, #2a4bff 40%, #1530c4 75%, #0b1a78 100%);
-  box-shadow: 0 16px 48px -12px rgba(42, 75, 255, 0.55);
+  background: linear-gradient(140deg, #6ec8ff 0%, #3d9eff 45%, #1a7dff 75%, #0d5ecc 100%);
+  box-shadow: 0 16px 48px -12px rgba(61, 158, 255, 0.55);
   flex-shrink: 0;
 }
 
@@ -151,7 +160,7 @@
   padding: 0 12px 0 16px;
   border-radius: 999px;
   background: #fff;
-  color: #1530c4;
+  color: #1a6bff;
   font-size: 13px;
   font-weight: 600;
   border: none;
@@ -171,8 +180,8 @@
   height: 44px;
   padding: 0 16px;
   border-radius: 999px;
-  border: 1px solid rgba(42, 75, 255, 0.12);
-  background: rgba(42, 75, 255, 0.05);
+  border: 1px solid rgba(61, 158, 255, 0.12);
+  background: rgba(61, 158, 255, 0.05);
   color: #f2f5f8;
   cursor: pointer;
   flex-shrink: 0;
@@ -187,13 +196,13 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: #2a4bff;
+  background: #3d9eff;
 }
 .ir-news__pulse-ring {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: #2a4bff;
+  background: #3d9eff;
   animation: ir-pulse 2s ease-out infinite;
 }
 .ir-news__label {
@@ -230,7 +239,7 @@
   min-height: 120px;
   padding: 1px;
   border-radius: 20px;
-  background: linear-gradient(180deg, rgba(42, 75, 255, 0.22), rgba(42, 75, 255, 0.04));
+  background: linear-gradient(180deg, rgba(61, 158, 255, 0.22), rgba(61, 158, 255, 0.04));
   border: none;
   cursor: pointer;
   text-align: left;
@@ -244,9 +253,9 @@
 .ir-card {
   flex-direction: column;
   background: #0f1218;
-  border: 1px solid rgba(42, 75, 255, 0.12);
+  border: 1px solid rgba(61, 158, 255, 0.12);
   padding: 16px;
-  box-shadow: inset 0 0 0 1px rgba(42, 75, 255, 0.04);
+  box-shadow: inset 0 0 0 1px rgba(61, 158, 255, 0.04);
 }
 .ir-card:active {
   transform: scale(0.97);
@@ -265,16 +274,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(42, 75, 255, 0.08);
-  color: #2a4bff;
+  background: rgba(61, 158, 255, 0.08);
+  color: #3d9eff;
 }
 
 .ir-card__badge {
   font-size: 10px;
   font-weight: 600;
   letter-spacing: 0.08em;
-  color: #2a4bff;
-  background: rgba(42, 75, 255, 0.12);
+  color: #3d9eff;
+  background: rgba(61, 158, 255, 0.12);
   padding: 4px 8px;
   border-radius: 8px;
 }
@@ -310,8 +319,8 @@
   width: 100%;
   padding: 12px;
   border-radius: 14px;
-  border: 1px dashed rgba(42, 75, 255, 0.35);
-  background: rgba(42, 75, 255, 0.06);
+  border: 1px dashed rgba(61, 158, 255, 0.35);
+  background: rgba(61, 158, 255, 0.06);
   color: #8aa8ff;
   font-size: 13px;
   font-weight: 500;
@@ -339,7 +348,7 @@
   height: 64px;
   border-radius: 20px;
   background: rgba(15, 18, 24, 0.92);
-  border: 1px solid rgba(42, 75, 255, 0.12);
+  border: 1px solid rgba(61, 158, 255, 0.12);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   z-index: 20;
@@ -362,5 +371,5 @@
 }
 
 .ir-nav__item--active {
-  color: #2a4bff;
+  color: #3d9eff;
 }

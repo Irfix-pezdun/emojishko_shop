@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from ..db import get_db
 from ..models import Lead, LeadType, LeadStatus
-from ..schemas import OrderCreateIn, OrderCreateOut
+from ..schemas import OrderCreateIn, OrderCreateOut, MyOrderOut
 from ..telegram_auth import require_telegram_user, TelegramUser
 from ..telegram_api import notify_author
 
@@ -62,3 +62,52 @@ async def create_order(
         pass
 
     return OrderCreateOut(id=lead.id, status=lead.status.value)
+
+
+
+STATUS_LABELS = {
+    "new": "Новая",
+    "claimed": "Принята",
+    "contacted": "На связи",
+    "in_progress": "В работе",
+    "completed": "Готово",
+    "cancelled": "Отменена",
+}
+
+
+@router.get("/my", response_model=list[MyOrderOut])
+def my_orders(
+    user: TelegramUser = Depends(require_telegram_user),
+    db: Session = Depends(get_db),
+):
+    rows = (
+        db.query(Lead)
+        .filter(Lead.telegram_user_id == str(user.id))
+        .order_by(Lead.created_at.desc())
+        .limit(50)
+        .all()
+    )
+    out = []
+    for r in rows:
+        title = None
+        if isinstance(r.payload, dict):
+            title = (
+                r.payload.get("theme")
+                or r.payload.get("description")
+                or r.payload.get("nick")
+            )
+        type_label = "free_trial" if r.type == LeadType.free_trial or str(r.type) == "free_trial" else "full_order"
+        # enum safe
+        tval = r.type.value if hasattr(r.type, "value") else str(r.type)
+        sval = r.status.value if hasattr(r.status, "value") else str(r.status)
+        out.append(
+            MyOrderOut(
+                id=r.id,
+                type=tval,
+                status=sval,
+                code=getattr(r, "code", None),
+                title=(title or "")[:120] or None,
+                created_at=r.created_at.isoformat() if r.created_at else "",
+            )
+        )
+    return out

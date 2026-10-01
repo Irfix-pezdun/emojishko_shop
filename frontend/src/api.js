@@ -61,6 +61,8 @@ export const claimFreeEmoji = (payload) =>
 export const submitOrder = (order) => request("/api/order", { method: "POST", body: order });
 export const createOrder = submitOrder;
 
+export const getMyOrders = () => request("/api/order/my");
+
 export async function updatePack(packId, body) {
   const data = await request(`/api/admin/packs/${encodeURIComponent(packId)}`, {
     method: "PATCH",

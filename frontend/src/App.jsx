@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import StarfieldBackground from "./components/StarfieldBackground";
 import HomeMenu from "./components/HomeMenu";
+import MyOrders from "./components/MyOrders";
 import PortfolioGallery from "./components/PortfolioGallery";
 import AboutDesigner from "./components/AboutDesigner";
 import FreeEmojiOffer from "./components/FreeEmojiOffer";
@@ -56,6 +57,14 @@ function collectPriorityUrls(packs) {
     }
   }
   return urls;
+}
+
+function ScreenGate({ id, variant, children }) {
+  return (
+    <div key={id} className={variant ? `screen-gate screen-gate--${variant}` : "screen-gate"}>
+      {children}
+    </div>
+  );
 }
 
 export default function App() {
@@ -138,6 +147,7 @@ export default function App() {
 
   const push = (name) => setStack((s) => [...s, name]);
   const goHome = () => setStack(["home"]);
+  const goBack = () => setStack((s) => (s.length > 1 ? s.slice(0, -1) : ["home"]));
 
   const openOrder = (styleHint) => {
     setOrderPrefill(styleHint || null);
@@ -162,11 +172,12 @@ export default function App() {
       {screen === "home" && <HomeMenu onNavigate={push} isAdmin={isAdmin} />}
 
       {screen === "portfolio" && (
-        <PortfolioGallery packs={packs} onOrderSimilar={openOrder} />
+        <PortfolioGallery key="portfolio" packs={packs} onOrderSimilar={openOrder} />
       )}
 
       {screen === "about" && (
         <AboutDesigner
+          key="about"
           authorUsername={config.author_username}
           avatarUrl={packs[0]?.cover_url}
           onOrder={() => openOrder(null)}
@@ -175,6 +186,7 @@ export default function App() {
 
       {screen === "free-emoji" && (
         <FreeEmojiOffer
+          key="free-emoji"
           channelUsername={config.channel_username}
           authorUsername={config.author_username}
           packs={packs}
@@ -182,7 +194,10 @@ export default function App() {
         />
       )}
 
-      {screen === "order" && <OrderForm prefillStyle={orderPrefill} onDone={goHome} />}
+      {screen === "order" && <OrderForm key="order" prefillStyle={orderPrefill} onDone={goHome} />}
+      {screen === "my-orders" && (
+        <MyOrders key="my-orders" onBack={goBack} onOrder={() => openOrder(null)} />
+      )}
 
       {screen === "admin" && isAdmin && (
         <AdminPacks packs={packs} onPacksChange={setPacks} />
@@ -190,6 +205,7 @@ export default function App() {
 
       {screen === "games" && (
         <PongGame
+          key="games"
           packs={packs}
           onClaimReward={() => {
             setStack((s) => {
@@ -202,6 +218,7 @@ export default function App() {
 
       {screen === "game-reward" && (
         <GameReward
+          key="game-reward"
           channelUsername={config.channel_username}
           authorUsername={config.author_username}
           packs={packs}

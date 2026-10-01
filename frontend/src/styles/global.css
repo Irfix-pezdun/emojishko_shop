@@ -232,3 +232,66 @@ select:focus {
   margin: 0;
   font-size: 12px;
 }
+
+
+/* --- Переходы между экранами --- */
+@keyframes screen-enter {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes screen-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes screen-item-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.screen {
+  animation: screen-enter 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* лёгкий каскад дочерних блоков */
+.screen > * {
+  animation: screen-item-rise 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.screen > *:nth-child(1) { animation-delay: 0.04s; }
+.screen > *:nth-child(2) { animation-delay: 0.09s; }
+.screen > *:nth-child(3) { animation-delay: 0.14s; }
+.screen > *:nth-child(4) { animation-delay: 0.18s; }
+.screen > *:nth-child(5) { animation-delay: 0.22s; }
+.screen > *:nth-child(6) { animation-delay: 0.26s; }
+.screen > *:nth-child(n+7) { animation-delay: 0.3s; }
+
+/* варианты: free — чуть снизу, portfolio — сбоку */
+.screen.screen--slide {
+  animation-name: screen-fade-slide;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .screen,
+  .screen > * {
+    animation: none !important;
+  }
+}

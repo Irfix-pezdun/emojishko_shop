@@ -72,3 +72,12 @@ class LeadOut(BaseModel):
     code: str | None = None
     description: str | None = None
     created_at: str
+
+
+class MyOrderOut(BaseModel):
+    id: int
+    type: str  # free_trial | full_order
+    status: str
+    code: str | None = None
+    title: str | None = None
+    created_at: str
